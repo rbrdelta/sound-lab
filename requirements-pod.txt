@@ -1,0 +1,11 @@
+# GPU pod dependencies (pinned). Installed by runpod/bootstrap.sh. NOT needed for the CPU tests.
+# transformers 5.6.2 is the version the CPU tests ran against; MusicFlamingo (Audio Flamingo Next)
+# first appears in 5.6. torch 2.9.1 is what the CPU tests used; the CUDA build is chosen by
+# bootstrap.sh's index URL. Compatibility of this torch with the pod's driver: UNVERIFIED.
+torch==2.9.1
+transformers==5.6.2
+accelerate==1.10.1
+numpy==2.5.3
+librosa==0.11.0
+soundfile==0.13.1
+pytest==9.1.1
