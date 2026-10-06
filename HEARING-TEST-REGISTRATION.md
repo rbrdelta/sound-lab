@@ -314,3 +314,33 @@ models); every clip registers vs silence at every layer.
 Scope: as with roughness, the classes were far apart by design (glides vs jumps of 3+ levels with
 instant cuts). Instant cuts also add brief clicks/broadband energy at each jump — part of what
 "abrupt" sounds like, but a separable sub-cue if the fear-detection work needs to attribute it.
+
+---
+
+# Hearing test, tempo (relaxed vs fast repeats) — registration
+
+Committed before any model reads a clip (2026-10-06). Rendered locally first; the pod renders
+again and md5s must match.
+
+1. **Throughline (Daniel).** Third and last cue in his sequence after roughness and volume (both
+   100% on both models). "Can the ears hear it" check.
+2. **Question.** Can the internal numbers tell relaxed repeats (calm) from fast repeats (fear) of
+   the same note, on notes the detector never practised on?
+3. **The one variable that moves:** tempo — calm 60 / 70 / 80 repeats a minute (resting
+   heartbeat), fear 160 / 180 / 200 (racing). 12 notes x 2 octaves x 3 tempos per class = 144 +
+   silence.
+4. **Held fixed:** clip length 3.0 s (Daniel: "let's not let that vary"), the note itself (steady
+   tone, 0.15 s, 20 ms on/off ramps, same pitch per clip), per-note level (same peak — Daniel's
+   "same volume"), first note at 0.05 s, 16 kHz mono, prompt, bf16, eager attention, seed 0.
+   **Moves with tempo and cannot be separated here:** number of notes (3–4 calm vs 8–10 fear) and
+   therefore total sound and average loudness — clips are deliberately NOT loudness-matched,
+   because matching would make each fast note quieter. **Daniel's note, verbatim intent:** if
+   this proves inaccurate or an issue, base tempo on repetition count instead, later.
+5. **Prediction (Daniel): 100%** — "Should get 100% right based on what we've observed."
+6. **Interpretation key — pass mark (Daniel): below 75% fail; 75–90% usable with more clips;
+   above 90% pass.** ("I think this is a high bar.") Sound check first; encoder primary.
+7. **What it changes:** completes the three-cue hearing sequence; next is Daniel's call (the
+   graded fear-detection work).
+
+**Definition-gate tally:** Daniel — cue and concept, clip length fixed, the repetition note,
+same-volume rule, prediction, pass mark = 6. Claude — tempo values, note length, carrier = 3.

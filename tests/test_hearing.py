@@ -1,6 +1,6 @@
 import numpy as np
 
-from make_clips import clip_specs, chord_notes, tune_specs, tune_notes, roughness_specs, flutter, SR, volume_specs, volume_envelope, VOL_PATTERNS
+from make_clips import clip_specs, chord_notes, tune_specs, tune_notes, roughness_specs, flutter, SR, volume_specs, volume_envelope, VOL_PATTERNS, tempo_specs, tempo_clip
 from hearing_test import leave_one_key_out, registers
 
 
@@ -87,3 +87,16 @@ def test_volume_set_same_levels_only_order_and_transition_differ():
     assert np.isclose(20 * np.log10(calm.max() / calm.min()), 20 * np.log10(fear.max() / fear.min()))
     assert np.abs(np.diff(20 * np.log10(calm))).max() < 0.01  # glides
     assert np.abs(np.diff(20 * np.log10(fear))).max() > 5  # cuts
+
+
+def test_tempo_set_same_note_same_level_more_repeats_when_fast():
+    import numpy as np
+    specs = tempo_specs()
+    assert len(specs) == 144 and sum(s["label"] == "fear" for s in specs) == 72
+    slow, fast = tempo_clip(60, 60.0), tempo_clip(60, 200.0)
+    assert len(slow) == len(fast)  # clip length fixed
+    assert np.isclose(np.abs(slow).max(), np.abs(fast).max())  # same per-note level
+    def count(x):  # notes = runs of 10 ms blocks with sound in them
+        blocks = np.abs(x[: len(x) // 160 * 160]).reshape(-1, 160).max(axis=1) > 0.01
+        return int(np.sum(np.diff(np.r_[0, blocks.astype(int)]) == 1))
+    assert count(slow) == 3 and count(fast) == 10

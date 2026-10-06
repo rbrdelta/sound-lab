@@ -156,6 +156,48 @@ def volume_specs() -> list[dict]:
     return specs
 
 
+# Tempo set (Daniel 2026-10-06): the same short note repeated slowly (calm) or fast (fear).
+# Clip length held fixed (Daniel), so fast means more repeats in the 3 s. Each note is identical
+# and at the same level ("same note, same volume"), so clips are NOT loudness-matched: fast clips
+# carry more notes and are louder on average -- the one thing that moves with tempo (recorded).
+# Daniel's note: if this proves inaccurate or an issue, base tempo on repetition count later.
+TEMPO_LENGTH_S = 3.0
+TEMPO_BPM = {"calm": [60.0, 70.0, 80.0], "fear": [160.0, 180.0, 200.0]}
+TEMPO_NOTE_S = 0.15
+TEMPO_START_S = 0.05
+TEMPO_PEAK = 0.3
+
+
+def tempo_note(midi: int) -> np.ndarray:
+    x = steady_tone(midi, TEMPO_NOTE_S)  # steady_tone already ramps 20 ms on and off
+    return TEMPO_PEAK * x / np.max(np.abs(x))
+
+
+def tempo_clip(midi: int, bpm: float) -> np.ndarray:
+    n = int(TEMPO_LENGTH_S * SR)
+    out = np.zeros(n)
+    note = tempo_note(midi)
+    t = TEMPO_START_S
+    while t + TEMPO_NOTE_S <= TEMPO_LENGTH_S:
+        i = int(round(t * SR))
+        out[i:i + len(note)] += note
+        t += 60.0 / bpm
+    return out.astype(np.float32)
+
+
+def tempo_specs() -> list[dict]:
+    specs = []
+    for k, key in enumerate(KEYS):
+        for octave, base in OCTAVE_BASES.items():
+            for label, bpms in TEMPO_BPM.items():
+                for i, bpm in enumerate(bpms):
+                    cid = f"{key}_{octave}_bpm{bpm:g}_{label}"
+                    specs.append({"clip_id": cid, "label": label, "source": key, "recording": cid,
+                                  "key": key, "arrangement": f"{bpm:g}bpm", "octave": octave,
+                                  "tempo_midi": base + k, "bpm": bpm})
+    return specs
+
+
 def clip_specs() -> list[dict]:
     specs = []
     for k, key in enumerate(KEYS):
@@ -224,17 +266,23 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", default="clips/controlled")
     p.add_argument("--sf2", default=DEFAULT_SF2)
-    p.add_argument("--set", default="chords", choices=["chords", "tunes", "roughness", "volume"])
+    p.add_argument("--set", default="chords", choices=["chords", "tunes", "roughness", "volume", "tempo"])
     args = p.parse_args()
     specs, length = {"chords": (clip_specs(), LENGTH_S), "tunes": (tune_specs(), TUNE_LENGTH_S),
                      "roughness": (roughness_specs(), ROUGH_LENGTH_S),
-                     "volume": (volume_specs(), VOL_LENGTH_S)}[args.set]
+                     "volume": (volume_specs(), VOL_LENGTH_S),
+                     "tempo": (tempo_specs(), TEMPO_LENGTH_S)}[args.set]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     rows = []
     for s in specs:
         path = out / f"{s['clip_id']}.wav"
+        if "tempo_midi" in s:  # tempo set: fixed per-note level, deliberately not loudness-matched
+            sf.write(path, tempo_clip(s["tempo_midi"], s["bpm"]), SR)
+            rows.append({**{k: s[k] for k in ("clip_id", "label", "source", "recording", "key",
+                                              "arrangement", "octave")}, "path": str(path)})
+            continue
         if "midi" in s:  # volume set: generated steady tone, no SoundFont
             n = int(length * SR)
             sf.write(path, finish(steady_tone(s["midi"], length) * volume_envelope(s["order"], s["gradual"], n),
