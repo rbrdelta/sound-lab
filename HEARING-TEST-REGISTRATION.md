@@ -55,3 +55,25 @@ throughline (his chain, Claude's framing), pass mark upper line (Claude proposed
 = 1 each. Daniel 12 / Claude 6 — above half.
 
 Scripts: `make_clips.py` (clips), `extract.py` (readings), `hearing_test.py` (scoring).
+
+## Result — 2026-10-06 (pod sound-lab-hearing, ~14 min, terminated after)
+
+Checks: render identical across two passes (md5); repeat reading identical; every chord
+registers vs silence at every layer.
+
+**Primary (encoder): 0.389 held-out-key accuracy (56/144), ranking 0.32 → FAIL.** Every one of
+the 32 language-model layers also fails (range 0.389–0.556; none reaches 2/3). Daniel predicted
+~60%, below the bar: direction right, level lower than predicted.
+
+Post-hoc, exploratory (not registered):
+- Detector that has seen every key (hold out octave+arrangement instead): encoder 0.493,
+  lm_8 0.549, lm_16 0.562, lm_31 0.514 — still at chance.
+- Null by swapping major/minor within matched pairs (200 shuffles): encoder shuffled median
+  0.500, middle 95% 0.431–0.556; real 0.389 sits below all 200. lm_31 likewise (0.389, 1%).
+  lm_16 (0.535) is inside the shuffle range. So the encoder's below-chance score is systematic,
+  not luck and not a method artifact — but it is not usable hearing and is unexplained. Lead
+  only.
+
+Files: readings `sound-lab/runs/hearing_controlled.npz` (laptop, gitignored, 65 MB — kept for
+the later fear-detector pass), scored result `runs/hearing_controlled.result.json` (committed),
+clips regenerate exactly from `make_clips.py`.
