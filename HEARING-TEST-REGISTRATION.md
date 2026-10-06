@@ -147,3 +147,17 @@ the ears register *which note* moved, not a shared "went minor" quality. Mid lay
 the pattern weakly (−0.04/−0.09). Not registered; a lead, not a finding.
 
 Next (Daniel's sequence): the same tune set on Audio Flamingo, after the license check.
+
+## Audio Flamingo license check — 2026-10-06
+
+Read the license text itself (NVIDIA OneWay Noncommercial License, 22 Mar 2022, "academic"
+variant, from the model repo). Use clause 3.3, verbatim: "The Work and any derivative works
+thereof only may be used or intended for use non-commercially. ... As used herein,
+'non-commercially' means for academic purposes only." "Academic" is not defined. The grant
+(2.1) includes "publicly display", and nothing restricts publishing results.
+
+Daniel's position: this is purely academic research; interest in a research role at Anthropic
+does not change that. Claude's read agrees (not legal advice): unpaid personal research with
+published findings is the use the clause allows; the job interest is a reason for doing
+research, not a commercial use of the model. Boundary: never use Audio Flamingo or anything
+derived from it in Partswatch or any paid product/service.
