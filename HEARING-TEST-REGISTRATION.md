@@ -161,3 +161,37 @@ does not change that. Claude's read agrees (not legal advice): unpaid personal r
 published findings is the use the clause allows; the job interest is a reason for doing
 research, not a commercial use of the model. Boundary: never use Audio Flamingo or anything
 derived from it in Partswatch or any paid product/service.
+
+---
+
+# Hearing test, Audio Flamingo on both clip sets — registration
+
+Committed before Audio Flamingo reads any clip (2026-10-06).
+
+1. **Throughline.** Qwen failed both sets (chords 0.389, tunes 0.361). Daniel's sequence: the
+   same tests on the fallback model, to see whether a model trained on more music hears mode.
+2. **Question:** same as before, per clip set.
+3. **The one variable that moves vs the Qwen runs:** the model (Qwen2-Audio-7B-Instruct →
+   nvidia/audio-flamingo-next-hf, the instruction-tuned checkpoint). Clip sets byte-identical
+   to the Qwen runs (regenerated from make_clips.py; md5 compared against the Qwen-run renders).
+4. **Held fixed:** both clip sets, prompt "Listen to this audio clip.", bf16, eager attention,
+   seed 0, single forward pass, grading, pass mark. Cannot be held fixed: the model's own
+   processor (input handling) and layer count differ — that is part of "the model".
+5. **Predictions (Daniel), before any reading:**
+   - Held chords: "for one chord it's hard either way, so it won't do much better than Qwen."
+   - Tunes: "if it's trained on music, it should theoretically do better than a coin flip, so
+     above 60%."
+   Context given first: same Whisper-derived ear lineage, more music training (Music Flamingo
+   data); chords/key/major-minor not mentioned in the readable paper text; key appears in the
+   card's example caption prompt.
+6. **Interpretation key:** encoder primary; pass mark unchanged. Chords fail + tunes pass →
+   context is what lets this model hear mode; it becomes the laboratory-model candidate. Both
+   fail → neither available open model carries mode in a usable form; bring back to Daniel
+   before any further model search. Both pass → strong candidate.
+7. **What it changes:** decides whether the sound arc has a laboratory model.
+
+**Definition-gate tally:** Daniel — run on Audio Flamingo, two predictions, reasoning for each =
+4 (counting each prediction with its reasoning as one: 2) → Daniel 3 (model choice, 2
+predictions); Claude — run both sets = 1; license reading = mechanics. Daniel above half.
+
+**License:** read and recorded above (non-commercial = academic purposes only).
