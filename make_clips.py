@@ -13,6 +13,12 @@ sample rate (16 kHz mono, what the model takes in).
 
 Plus one silent clip of the same length, for the "does the sound register at all" check.
 
+`--set tunes` (added 2026-10-06 after the chord set failed): the same design, but each clip is a
+4.0 s, 8-note tune (0.5 s per note) instead of a held chord. Three tunes replace the three
+arrangements: a short melody, the chord's notes one after another, and the first six notes of the
+scale. Major and minor versions are note-for-note identical except the 3rd and 6th of the scale
+(each a half-step lower in minor).
+
 Writes <out>/<clip_id>.wav and <out>/clips.csv (clip_id,path,label,source,recording,
 key,arrangement,octave). `source` = the key, so whole keys can be held out; `recording` = the clip.
 
@@ -47,6 +53,34 @@ def chord_notes(root: int, quality: str, arrangement: str) -> list[int]:
     return {"root": [r, t, f], "inv1": [t, f, r + 12], "inv2": [f, r + 12, t + 12]}[arrangement]
 
 
+# scale degree -> semitones above the root; minor lowers the 3rd and 6th by a half-step
+DEGREE = {"major": {1: 0, 2: 2, 3: 4, 4: 5, 5: 7, 6: 9, 8: 12},
+          "minor": {1: 0, 2: 2, 3: 3, 4: 5, 5: 7, 6: 8, 8: 12}}
+TUNES = {"melody": [1, 2, 3, 5, 6, 5, 3, 1],
+         "arpeggio": [1, 3, 5, 8, 8, 5, 3, 1],
+         "scale": [1, 2, 3, 4, 5, 6, 5, 4]}
+TUNE_NOTE_S = 0.5
+TUNE_LENGTH_S = 4.0
+
+
+def tune_notes(root: int, quality: str, tune: str) -> list[int]:
+    return [root + DEGREE[quality][d] for d in TUNES[tune]]
+
+
+def tune_specs() -> list[dict]:
+    specs = []
+    for k, key in enumerate(KEYS):
+        for octave, base in OCTAVE_BASES.items():
+            for tune in TUNES:
+                for quality in ("major", "minor"):
+                    cid = f"{key}_{octave}_{tune}_{quality}"
+                    notes = tune_notes(base + k, quality, tune)
+                    events = [(i * TUNE_NOTE_S, TUNE_NOTE_S, [n]) for i, n in enumerate(notes)]
+                    specs.append({"clip_id": cid, "label": quality, "source": key, "recording": cid,
+                                  "key": key, "arrangement": tune, "octave": octave, "events": events})
+    return specs
+
+
 def clip_specs() -> list[dict]:
     specs = []
     for k, key in enumerate(KEYS):
@@ -56,31 +90,37 @@ def clip_specs() -> list[dict]:
                     cid = f"{key}_{octave}_{arr}_{quality}"
                     specs.append({"clip_id": cid, "label": quality, "source": key, "recording": cid,
                                   "key": key, "arrangement": arr, "octave": octave,
-                                  "notes": chord_notes(base + k, quality, arr)})
+                                  "events": [(0.0, HOLD_S, chord_notes(base + k, quality, arr))]})
     return specs
 
 
-def write_midi(notes: list[int], path: Path) -> None:
+def write_midi(events: list[tuple], path: Path) -> None:
+    """events: (start_s, duration_s, [midi notes]). Default tempo -> 960 ticks per second."""
     import mido
 
-    mid = mido.MidiFile(ticks_per_beat=480)  # default tempo 500000 us/beat -> 960 ticks per second
+    mid = mido.MidiFile(ticks_per_beat=480)
     tr = mido.MidiTrack()
     mid.tracks.append(tr)
     tr.append(mido.Message("program_change", program=0, time=0))  # acoustic grand piano
-    for n in notes:
-        tr.append(mido.Message("note_on", note=n, velocity=VELOCITY, time=0))
-    hold_ticks = int(round(HOLD_S * 960))
-    for i, n in enumerate(notes):
-        tr.append(mido.Message("note_off", note=n, velocity=0, time=hold_ticks if i == 0 else 0))
+    msgs = []  # (tick, order, message): offs sort before ons at the same tick
+    for start, dur, notes in events:
+        on, off = int(round(start * 960)), int(round((start + dur) * 960))
+        for n in notes:
+            msgs.append((on, 1, mido.Message("note_on", note=n, velocity=VELOCITY)))
+            msgs.append((off, 0, mido.Message("note_off", note=n, velocity=0)))
+    now = 0
+    for tick, _, msg in sorted(msgs, key=lambda m: (m[0], m[1])):
+        tr.append(msg.copy(time=tick - now))
+        now = tick
     mid.save(path)
 
 
-def render(notes: list[int], sf2: str) -> np.ndarray:
+def render(events: list[tuple], sf2: str) -> np.ndarray:
     import soundfile as sf
 
     with tempfile.TemporaryDirectory() as td:
         mpath, wpath = Path(td) / "c.mid", Path(td) / "c.wav"
-        write_midi(notes, mpath)
+        write_midi(events, mpath)
         subprocess.run(["fluidsynth", "-ni", "-q", "-R", "0", "-C", "0", "-g", "1.0", "-r", str(SR),
                         "-F", str(wpath), sf2, str(mpath)], check=True, capture_output=True)
         audio, sr = sf.read(wpath, dtype="float64", always_2d=True)
@@ -88,9 +128,9 @@ def render(notes: list[int], sf2: str) -> np.ndarray:
     return audio.mean(axis=1)
 
 
-def finish(audio: np.ndarray) -> np.ndarray:
-    """Trim/pad to exactly LENGTH_S, fade the tail, scale to TARGET_RMS."""
-    n = int(LENGTH_S * SR)
+def finish(audio: np.ndarray, length_s: float = LENGTH_S) -> np.ndarray:
+    """Trim/pad to exactly length_s, fade the tail, scale to TARGET_RMS."""
+    n = int(length_s * SR)
     out = np.zeros(n)
     out[: min(n, len(audio))] = audio[:n]
     fade = int(FADE_S * SR)
@@ -109,18 +149,20 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", default="clips/controlled")
     p.add_argument("--sf2", default=DEFAULT_SF2)
+    p.add_argument("--set", default="chords", choices=["chords", "tunes"])
     args = p.parse_args()
+    specs, length = (clip_specs(), LENGTH_S) if args.set == "chords" else (tune_specs(), TUNE_LENGTH_S)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     rows = []
-    for s in clip_specs():
+    for s in specs:
         path = out / f"{s['clip_id']}.wav"
-        sf.write(path, finish(render(s["notes"], args.sf2)), SR)
+        sf.write(path, finish(render(s["events"], args.sf2), length), SR)
         rows.append({**{k: s[k] for k in ("clip_id", "label", "source", "recording", "key",
                                           "arrangement", "octave")}, "path": str(path)})
     silent = out / "silence.wav"
-    sf.write(silent, np.zeros(int(LENGTH_S * SR), dtype=np.float32), SR)
+    sf.write(silent, np.zeros(int(length * SR), dtype=np.float32), SR)
     rows.append({"clip_id": "silence", "label": "silence", "source": "silence", "recording": "silence",
                  "key": "", "arrangement": "", "octave": "", "path": str(silent)})
 

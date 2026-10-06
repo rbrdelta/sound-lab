@@ -1,6 +1,6 @@
 import numpy as np
 
-from make_clips import clip_specs, chord_notes
+from make_clips import clip_specs, chord_notes, tune_specs, tune_notes
 from hearing_test import leave_one_key_out, registers
 
 
@@ -8,7 +8,7 @@ def test_clip_set_is_balanced_and_differs_only_in_the_middle_note():
     specs = clip_specs()
     assert len(specs) == 144
     assert sum(s["label"] == "minor" for s in specs) == 72
-    by = {(s["key"], s["octave"], s["arrangement"], s["label"]): s["notes"] for s in specs}
+    by = {(s["key"], s["octave"], s["arrangement"], s["label"]): s["events"][0][2] for s in specs}
     for (key, octv, arr, q), notes in by.items():
         if q != "major":
             continue
@@ -41,3 +41,16 @@ def test_registers():
     assert registers(X, sil)["registers"]
     X2 = np.vstack([np.zeros(10), rng.standard_normal((20, 10))])
     assert not registers(X2, sil)["registers"]
+
+
+def test_tune_set_is_balanced_and_differs_only_in_mood_notes():
+    specs = tune_specs()
+    assert len(specs) == 144 and sum(s["label"] == "minor" for s in specs) == 72
+    by = {(s["key"], s["octave"], s["arrangement"], s["label"]): [e[2][0] for e in s["events"]] for s in specs}
+    for (key, octv, tune, q), notes in by.items():
+        if q != "major":
+            continue
+        minor = by[(key, octv, tune, "minor")]
+        assert all(m - n in (0, -1) for m, n in zip(minor, notes)) and any(m != n for m, n in zip(minor, notes))
+    assert tune_notes(60, "minor", "melody") == [60, 62, 63, 67, 68, 67, 63, 60]
+    assert all(e[0] + e[1] <= 4.0 for s in specs for e in s["events"])

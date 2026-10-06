@@ -92,3 +92,38 @@ the notes are, not the intervals between them. Not tested further.
 - Then the same test on Audio Flamingo, to see whether the two models differ.
 - Framing: major vs minor is one dimension of several that can elicit calm or fear; this is
   step one.
+
+---
+
+# Hearing test, controlled phase, second run: tunes instead of chords — registration
+
+Committed before any tune is rendered or read (2026-10-06).
+
+1. **Throughline.** The held-chord run failed (encoder 0.389), and Daniel found the pairs hard to
+   tell apart by ear. Mode is normally heard in context, so the fail may reflect a weak stimulus,
+   not missing hearing. This run changes one thing, held chord to 8-note tune, before any move to
+   recorded music (later) or Audio Flamingo (after this run, Daniel).
+2. **Question (same as run one).** Can the internal numbers tell major from minor on keys the
+   detector never practised on?
+3. **The one variable that moved from run one:** clip form, a held 2 s chord → a 4 s 8-note tune
+   (0.5 s per note). Within the run, the variable is still major vs minor: the 3rd and 6th of the
+   scale a half-step lower. Spread evenly: 12 keys, 2 octaves, 3 tunes (melody 1-2-3-5-6-5-3-1,
+   arpeggio 1-3-5-8-8-5-3-1, scale 1-2-3-4-5-6-5-4) replacing the 3 arrangements. 144 clips +
+   silence.
+4. **Held fixed:** as run one (piano, velocity, RMS loudness, 16 kHz mono, prompt, model, bf16,
+   eager attention, seed 0, single forward pass), with length now 4.0 s on every clip (Daniel).
+   Cannot be held fixed: pitch content across keys/octaves (spread evenly; whole keys held out).
+5. **Prediction (Daniel):** better than a coin flip, over 60%. His reasoning: "If it can
+   understand how high the note it then it has a sense of pitch at least. So I do expect better
+   than a coin flip." Given to him first: run one's scratch paper carried how high notes are,
+   not the gaps between them, and major vs minor is entirely in the gaps.
+6. **Interpretation key:** unchanged from run one (encoder primary; pass mark fixed; sound check
+   first). Added: pass → recorded real music next on Qwen; fail → strong evidence Qwen's ears do
+   not carry mode in a usable form, and Audio Flamingo runs the same tune set (Daniel's next step
+   either way, after the license check).
+7. **What it changes:** pass or fail, Audio Flamingo is next (Daniel). Pass also unlocks the
+   recorded-music phase on Qwen.
+
+**Definition-gate tally:** Daniel — 4 s length, loudness/length normalised, prediction, Audio
+Flamingo next = 4. Claude — sequence over chord (Daniel asked which is the better test), tune
+shapes, mood-note design = 3. Both — the question = 0.5 each. Daniel 4.5 / Claude 3.5.
