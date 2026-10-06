@@ -77,3 +77,18 @@ Post-hoc, exploratory (not registered):
 Files: readings `sound-lab/runs/hearing_controlled.npz` (laptop, gitignored, 65 MB — kept for
 the later fear-detector pass), scored result `runs/hearing_controlled.result.json` (committed),
 clips regenerate exactly from `make_clips.py`.
+
+Exploratory "what else is on the scratch paper" (registered as exploratory; same detector,
+leave-one-key-out): octave (low vs high) encoder 0.86, LM layers 0.77–0.85; note order root vs
+1st inversion ~0.57–0.61, root vs 2nd inversion ~0.66–0.68; major/minor 0.39–0.56. Inversions
+also raise average pitch, so the most likely single reading is that the readings carry how HIGH
+the notes are, not the intervals between them. Not tested further.
+
+## Daniel's direction after the result (2026-10-06)
+
+- He found the sample hard to tell apart by ear too ("that was really difficult for me too").
+- Next: rerun on real audio, normalised so volume and length are fixed (key spread evenly as
+  before — the notes themselves must differ for major/minor to exist).
+- Then the same test on Audio Flamingo, to see whether the two models differ.
+- Framing: major vs minor is one dimension of several that can elicit calm or fear; this is
+  step one.
