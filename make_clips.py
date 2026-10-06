@@ -110,6 +110,52 @@ def flutter(audio: np.ndarray, hz: float) -> np.ndarray:
     return audio * (1.0 + FLUTTER_DEPTH * np.sin(2 * np.pi * hz * t))
 
 
+# Volume set (Daniel 2026-10-06): how loudness CHANGES, gradual (calm) vs abrupt jumps (fear).
+# Range held fixed: every clip in a calm/fear pair visits the SAME 8 loudness levels (-6 to +6 dB),
+# only the order and the transitions differ. Calm walks through them in order and glides between
+# them; fear visits them in a jumping order (every step >= 3 levels apart) and cuts instantly.
+# Carrier: a steady tone generated here (a note plus its first 5 overtones, organ-like), because
+# the SoundFont organ wobbles about +/-2 dB on its own -- as large as a calm step.
+VOL_LENGTH_S = 3.0
+VOL_LEVELS_DB = np.linspace(-6.0, 6.0, 8)
+VOL_PATTERNS = {"calm": [[0, 1, 2, 3, 4, 5, 6, 7], [7, 6, 5, 4, 3, 2, 1, 0], [0, 2, 4, 6, 7, 5, 3, 1]],
+                "fear": [[3, 7, 0, 4, 1, 5, 2, 6], [4, 0, 7, 3, 6, 2, 5, 1], [2, 6, 1, 5, 0, 4, 7, 3]]}
+
+
+def steady_tone(midi: int, length_s: float) -> np.ndarray:
+    t = np.arange(int(length_s * SR)) / SR
+    f0 = 440.0 * 2 ** ((midi - 69) / 12)
+    x = sum(np.sin(2 * np.pi * k * f0 * t) / k for k in range(1, 7) if k * f0 < SR / 2)
+    ramp = int(0.02 * SR)  # 20 ms on/off so the clip doesn't click
+    x[:ramp] *= np.linspace(0, 1, ramp)
+    x[-ramp:] *= np.linspace(1, 0, ramp)
+    return x
+
+
+def volume_envelope(order: list[int], gradual: bool, n: int) -> np.ndarray:
+    levels = VOL_LEVELS_DB[order]
+    seg = n / len(levels)
+    if gradual:  # glide: straight line in dB between the centres of consecutive segments
+        centres = (np.arange(len(levels)) + 0.5) * seg
+        db = np.interp(np.arange(n), centres, levels)
+    else:  # jump: hold each level, change instantly
+        db = levels[np.minimum((np.arange(n) / seg).astype(int), len(levels) - 1)]
+    return 10 ** (db / 20)
+
+
+def volume_specs() -> list[dict]:
+    specs = []
+    for k, key in enumerate(KEYS):
+        for octave, base in OCTAVE_BASES.items():
+            for label, patterns in VOL_PATTERNS.items():
+                for i, order in enumerate(patterns):
+                    cid = f"{key}_{octave}_pattern{i}_{label}"
+                    specs.append({"clip_id": cid, "label": label, "source": key, "recording": cid,
+                                  "key": key, "arrangement": f"pattern{i}", "octave": octave,
+                                  "midi": base + k, "order": order, "gradual": label == "calm"})
+    return specs
+
+
 def clip_specs() -> list[dict]:
     specs = []
     for k, key in enumerate(KEYS):
@@ -178,16 +224,24 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", default="clips/controlled")
     p.add_argument("--sf2", default=DEFAULT_SF2)
-    p.add_argument("--set", default="chords", choices=["chords", "tunes", "roughness"])
+    p.add_argument("--set", default="chords", choices=["chords", "tunes", "roughness", "volume"])
     args = p.parse_args()
     specs, length = {"chords": (clip_specs(), LENGTH_S), "tunes": (tune_specs(), TUNE_LENGTH_S),
-                     "roughness": (roughness_specs(), ROUGH_LENGTH_S)}[args.set]
+                     "roughness": (roughness_specs(), ROUGH_LENGTH_S),
+                     "volume": (volume_specs(), VOL_LENGTH_S)}[args.set]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     rows = []
     for s in specs:
         path = out / f"{s['clip_id']}.wav"
+        if "midi" in s:  # volume set: generated steady tone, no SoundFont
+            n = int(length * SR)
+            sf.write(path, finish(steady_tone(s["midi"], length) * volume_envelope(s["order"], s["gradual"], n),
+                                  length), SR)
+            rows.append({**{k: s[k] for k in ("clip_id", "label", "source", "recording", "key",
+                                              "arrangement", "octave")}, "path": str(path)})
+            continue
         audio = render(s["events"], args.sf2, s.get("program", 0))
         if "flutter_hz" in s:
             audio = flutter(audio[: int(length * SR)], s["flutter_hz"])

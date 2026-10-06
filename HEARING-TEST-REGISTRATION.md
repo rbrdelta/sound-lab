@@ -269,3 +269,34 @@ a class difference, but it is not a perfectly steady carrier either.
 Scope: the classes were far apart by design (3–6 vs 40–100 flutters a second). This shows the
 ears carry flutter rate cleanly; it does not show where between those rates the line sits, and
 it is a hearing result, not evidence the model "feels" fear.
+
+---
+
+# Hearing test, volume (gradual vs abrupt loudness change) — registration
+
+Committed before any model reads a clip (2026-10-06). Clips rendered locally first (no
+SoundFont needed) to check they play correctly; the pod renders them again and the md5s must match.
+
+1. **Throughline (Daniel).** Second cue in his sequence (roughness passed at 100% on both
+   models). Still a "can the ears hear it" check; grey-scale belongs in the later fear-detection
+   work.
+2. **Question.** Can the internal numbers tell gradually changing loudness (calm) from jumping
+   loudness (fear), on notes the detector never practised on?
+3. **The one variable that moves (Daniel's correction):** how loudness changes — calm walks
+   through the levels in order and glides between them; fear visits the same levels in a jumping
+   order (every step at least 3 levels apart) and cuts instantly. **Range held fixed:** every
+   clip visits the same 8 levels, −6 to +6 dB, once each. Daniel's first sketch moved range too;
+   he fixed it to one variable. Spread: 3 orders per class, 12 notes x 2 octaves = 144 + silence.
+4. **Held fixed:** carrier = a steady tone generated in code (a note plus its first 5 overtones,
+   organ-like, zero wobble — instrument changed per Daniel because the SoundFont organ wobbles
+   about ±2 dB on its own), level set, length 3.0 s, average loudness (RMS-matched), 16 kHz mono,
+   prompt, bf16, eager attention, seed 0, single forward pass. Graded leave-one-note-out.
+5. **Prediction (Daniel): 70%.** "Against a gradient this is more subtle."
+6. **Interpretation key — pass mark set by Daniel for this cue:** below 2/3 fail; 2/3–80% usable
+   with more clips; above 80% pass. Sound check first. Encoder primary.
+7. **What it changes:** pass → volume joins roughness as a candidate fear cue; then tempo.
+   Both models, scored separately.
+
+**Definition-gate tally:** Daniel — cue, calm/fear concept (progressive vs jumps), fixing range
+to one variable, instrument change, prediction, pass mark = 6. Claude — level set and orders,
+glide/cut implementation, steady-tone carrier design = 3. Daniel above half.

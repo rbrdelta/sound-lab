@@ -1,6 +1,6 @@
 import numpy as np
 
-from make_clips import clip_specs, chord_notes, tune_specs, tune_notes, roughness_specs, flutter, SR
+from make_clips import clip_specs, chord_notes, tune_specs, tune_notes, roughness_specs, flutter, SR, volume_specs, volume_envelope, VOL_PATTERNS
 from hearing_test import leave_one_key_out, registers
 
 
@@ -72,3 +72,18 @@ def test_flutter_has_the_requested_rate():
     y = flutter(x, 70.0)
     spec = np.abs(np.fft.rfft(y - y.mean()))
     assert abs(np.argmax(spec) * SR / len(y) - 70.0) < 1.0
+
+
+def test_volume_set_same_levels_only_order_and_transition_differ():
+    import numpy as np
+    specs = volume_specs()
+    assert len(specs) == 144 and sum(s["label"] == "fear" for s in specs) == 72
+    for patterns in VOL_PATTERNS.values():
+        assert all(sorted(p) == list(range(8)) for p in patterns)  # every pattern visits all 8 levels once
+    for p in VOL_PATTERNS["fear"]:
+        assert min(abs(a - b) for a, b in zip(p, p[1:])) >= 3
+    calm = volume_envelope(VOL_PATTERNS["calm"][0], True, 48000)
+    fear = volume_envelope(VOL_PATTERNS["fear"][0], False, 48000)
+    assert np.isclose(20 * np.log10(calm.max() / calm.min()), 20 * np.log10(fear.max() / fear.min()))
+    assert np.abs(np.diff(20 * np.log10(calm))).max() < 0.01  # glides
+    assert np.abs(np.diff(20 * np.log10(fear))).max() > 5  # cuts
