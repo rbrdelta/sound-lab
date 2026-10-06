@@ -17,14 +17,28 @@ fi
 export HF_HOME="${HF_HOME:-/workspace/hf-cache}"   # model weights survive pod restarts
 mkdir -p "$HF_HOME" runs logs
 
-# Ubuntu 24.04 images refuse system-wide pip installs (PEP 668), so install into .venv, which
-# verify.sh already prefers. Kept on /workspace so it survives a pod stop.
-[[ -x .venv/bin/python ]] || python3 -m venv .venv
-PY=.venv/bin/python
-"$PY" -m pip install --upgrade pip
-# CUDA 12.8 wheels; change cu128 if the pod's driver is older (check: nvidia-smi, top right).
-"$PY" -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
-"$PY" -m pip install -r requirements-pod.txt
+# Ubuntu 24.04 images refuse system-wide pip installs (PEP 668), so install into a venv.
+# With the EU-RO-1 network volume (2026-10-06): the pinned wheels live in /workspace/wheels and the
+# venv goes on the pod's LOCAL disk, linked as .venv. Measured: a venv ON the network volume took
+# 33 min to install and 3 min to import (many small files over the network); from saved wheels to
+# local disk, 79 s. Without the volume, fall back to downloading into .venv as before.
+if [[ -d /workspace/wheels ]]; then
+  VENV=/root/venv
+  python3 -m venv "$VENV"
+  W=(--no-index --find-links /workspace/wheels)
+  "$VENV/bin/pip" install -q "${W[@]}" pip
+  "$VENV/bin/pip" install -q "${W[@]}" torch==2.9.1
+  "$VENV/bin/pip" install -q "${W[@]}" -r requirements-pod.txt
+  rm -rf .venv && ln -s "$VENV" .venv
+  PY=.venv/bin/python
+else
+  [[ -x .venv/bin/python ]] || python3 -m venv .venv
+  PY=.venv/bin/python
+  "$PY" -m pip install --upgrade pip
+  # CUDA 12.8 wheels; change cu128 if the pod's driver is older (check: nvidia-smi, top right).
+  "$PY" -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+  "$PY" -m pip install -r requirements-pod.txt
+fi
 
 "$PY" - <<'PY'
 import torch, transformers
