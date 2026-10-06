@@ -1,0 +1,1061 @@
+{
+  "model": "nvidia/audio-flamingo-next-hf",
+  "transformers_version": "5.6.2",
+  "torch_version": "2.9.1+cu128",
+  "dtype": "bf16",
+  "attn_implementation": "eager",
+  "seed": 0,
+  "prompt": "Listen to this audio clip.",
+  "pooling": "mean over audio-token positions; encoder: mean over valid (non-padding) frames",
+  "read_point": "single forward pass, no generation, before any output token",
+  "n_lm_layers": 28,
+  "layers": [
+    "encoder",
+    "lm_0",
+    "lm_1",
+    "lm_2",
+    "lm_3",
+    "lm_4",
+    "lm_5",
+    "lm_6",
+    "lm_7",
+    "lm_8",
+    "lm_9",
+    "lm_10",
+    "lm_11",
+    "lm_12",
+    "lm_13",
+    "lm_14",
+    "lm_15",
+    "lm_16",
+    "lm_17",
+    "lm_18",
+    "lm_19",
+    "lm_20",
+    "lm_21",
+    "lm_22",
+    "lm_23",
+    "lm_24",
+    "lm_25",
+    "lm_26",
+    "lm_27"
+  ],
+  "repeat_check_identical": true,
+  "clips": [
+    {
+      "clip_id": "C_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct3_bpm60_calm",
+      "path": "clips/tempo/C_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "C_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct3_bpm70_calm",
+      "path": "clips/tempo/C_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "C_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct3_bpm80_calm",
+      "path": "clips/tempo/C_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "C_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct3_bpm160_fear",
+      "path": "clips/tempo/C_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "C_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct3_bpm180_fear",
+      "path": "clips/tempo/C_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "C_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct3_bpm200_fear",
+      "path": "clips/tempo/C_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct4_bpm60_calm",
+      "path": "clips/tempo/C_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct4_bpm70_calm",
+      "path": "clips/tempo/C_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "C",
+      "recording": "C_oct4_bpm80_calm",
+      "path": "clips/tempo/C_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct4_bpm160_fear",
+      "path": "clips/tempo/C_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct4_bpm180_fear",
+      "path": "clips/tempo/C_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "C_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "C",
+      "recording": "C_oct4_bpm200_fear",
+      "path": "clips/tempo/C_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct3_bpm60_calm",
+      "path": "clips/tempo/Db_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct3_bpm70_calm",
+      "path": "clips/tempo/Db_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct3_bpm80_calm",
+      "path": "clips/tempo/Db_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct3_bpm160_fear",
+      "path": "clips/tempo/Db_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct3_bpm180_fear",
+      "path": "clips/tempo/Db_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct3_bpm200_fear",
+      "path": "clips/tempo/Db_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct4_bpm60_calm",
+      "path": "clips/tempo/Db_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct4_bpm70_calm",
+      "path": "clips/tempo/Db_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "Db",
+      "recording": "Db_oct4_bpm80_calm",
+      "path": "clips/tempo/Db_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct4_bpm160_fear",
+      "path": "clips/tempo/Db_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct4_bpm180_fear",
+      "path": "clips/tempo/Db_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Db_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "Db",
+      "recording": "Db_oct4_bpm200_fear",
+      "path": "clips/tempo/Db_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct3_bpm60_calm",
+      "path": "clips/tempo/D_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct3_bpm70_calm",
+      "path": "clips/tempo/D_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct3_bpm80_calm",
+      "path": "clips/tempo/D_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct3_bpm160_fear",
+      "path": "clips/tempo/D_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct3_bpm180_fear",
+      "path": "clips/tempo/D_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "D_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct3_bpm200_fear",
+      "path": "clips/tempo/D_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct4_bpm60_calm",
+      "path": "clips/tempo/D_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct4_bpm70_calm",
+      "path": "clips/tempo/D_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "D",
+      "recording": "D_oct4_bpm80_calm",
+      "path": "clips/tempo/D_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct4_bpm160_fear",
+      "path": "clips/tempo/D_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct4_bpm180_fear",
+      "path": "clips/tempo/D_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "D_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "D",
+      "recording": "D_oct4_bpm200_fear",
+      "path": "clips/tempo/D_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm60_calm",
+      "path": "clips/tempo/Eb_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm70_calm",
+      "path": "clips/tempo/Eb_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm80_calm",
+      "path": "clips/tempo/Eb_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm160_fear",
+      "path": "clips/tempo/Eb_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm180_fear",
+      "path": "clips/tempo/Eb_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct3_bpm200_fear",
+      "path": "clips/tempo/Eb_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm60_calm",
+      "path": "clips/tempo/Eb_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm70_calm",
+      "path": "clips/tempo/Eb_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm80_calm",
+      "path": "clips/tempo/Eb_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm160_fear",
+      "path": "clips/tempo/Eb_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm180_fear",
+      "path": "clips/tempo/Eb_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "Eb",
+      "recording": "Eb_oct4_bpm200_fear",
+      "path": "clips/tempo/Eb_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct3_bpm60_calm",
+      "path": "clips/tempo/E_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct3_bpm70_calm",
+      "path": "clips/tempo/E_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct3_bpm80_calm",
+      "path": "clips/tempo/E_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct3_bpm160_fear",
+      "path": "clips/tempo/E_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct3_bpm180_fear",
+      "path": "clips/tempo/E_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "E_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct3_bpm200_fear",
+      "path": "clips/tempo/E_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct4_bpm60_calm",
+      "path": "clips/tempo/E_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct4_bpm70_calm",
+      "path": "clips/tempo/E_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "E",
+      "recording": "E_oct4_bpm80_calm",
+      "path": "clips/tempo/E_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct4_bpm160_fear",
+      "path": "clips/tempo/E_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct4_bpm180_fear",
+      "path": "clips/tempo/E_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "E_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "E",
+      "recording": "E_oct4_bpm200_fear",
+      "path": "clips/tempo/E_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct3_bpm60_calm",
+      "path": "clips/tempo/F_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct3_bpm70_calm",
+      "path": "clips/tempo/F_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct3_bpm80_calm",
+      "path": "clips/tempo/F_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct3_bpm160_fear",
+      "path": "clips/tempo/F_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct3_bpm180_fear",
+      "path": "clips/tempo/F_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "F_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct3_bpm200_fear",
+      "path": "clips/tempo/F_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct4_bpm60_calm",
+      "path": "clips/tempo/F_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct4_bpm70_calm",
+      "path": "clips/tempo/F_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "F",
+      "recording": "F_oct4_bpm80_calm",
+      "path": "clips/tempo/F_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct4_bpm160_fear",
+      "path": "clips/tempo/F_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct4_bpm180_fear",
+      "path": "clips/tempo/F_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "F_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "F",
+      "recording": "F_oct4_bpm200_fear",
+      "path": "clips/tempo/F_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm60_calm",
+      "path": "clips/tempo/Gb_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm70_calm",
+      "path": "clips/tempo/Gb_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm80_calm",
+      "path": "clips/tempo/Gb_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm160_fear",
+      "path": "clips/tempo/Gb_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm180_fear",
+      "path": "clips/tempo/Gb_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct3_bpm200_fear",
+      "path": "clips/tempo/Gb_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm60_calm",
+      "path": "clips/tempo/Gb_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm70_calm",
+      "path": "clips/tempo/Gb_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm80_calm",
+      "path": "clips/tempo/Gb_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm160_fear",
+      "path": "clips/tempo/Gb_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm180_fear",
+      "path": "clips/tempo/Gb_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "Gb",
+      "recording": "Gb_oct4_bpm200_fear",
+      "path": "clips/tempo/Gb_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct3_bpm60_calm",
+      "path": "clips/tempo/G_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct3_bpm70_calm",
+      "path": "clips/tempo/G_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct3_bpm80_calm",
+      "path": "clips/tempo/G_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct3_bpm160_fear",
+      "path": "clips/tempo/G_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct3_bpm180_fear",
+      "path": "clips/tempo/G_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "G_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct3_bpm200_fear",
+      "path": "clips/tempo/G_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct4_bpm60_calm",
+      "path": "clips/tempo/G_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct4_bpm70_calm",
+      "path": "clips/tempo/G_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "G",
+      "recording": "G_oct4_bpm80_calm",
+      "path": "clips/tempo/G_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct4_bpm160_fear",
+      "path": "clips/tempo/G_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct4_bpm180_fear",
+      "path": "clips/tempo/G_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "G_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "G",
+      "recording": "G_oct4_bpm200_fear",
+      "path": "clips/tempo/G_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm60_calm",
+      "path": "clips/tempo/Ab_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm70_calm",
+      "path": "clips/tempo/Ab_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm80_calm",
+      "path": "clips/tempo/Ab_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm160_fear",
+      "path": "clips/tempo/Ab_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm180_fear",
+      "path": "clips/tempo/Ab_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct3_bpm200_fear",
+      "path": "clips/tempo/Ab_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm60_calm",
+      "path": "clips/tempo/Ab_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm70_calm",
+      "path": "clips/tempo/Ab_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm80_calm",
+      "path": "clips/tempo/Ab_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm160_fear",
+      "path": "clips/tempo/Ab_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm180_fear",
+      "path": "clips/tempo/Ab_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "Ab",
+      "recording": "Ab_oct4_bpm200_fear",
+      "path": "clips/tempo/Ab_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct3_bpm60_calm",
+      "path": "clips/tempo/A_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct3_bpm70_calm",
+      "path": "clips/tempo/A_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct3_bpm80_calm",
+      "path": "clips/tempo/A_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct3_bpm160_fear",
+      "path": "clips/tempo/A_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct3_bpm180_fear",
+      "path": "clips/tempo/A_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "A_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct3_bpm200_fear",
+      "path": "clips/tempo/A_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct4_bpm60_calm",
+      "path": "clips/tempo/A_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct4_bpm70_calm",
+      "path": "clips/tempo/A_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "A",
+      "recording": "A_oct4_bpm80_calm",
+      "path": "clips/tempo/A_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct4_bpm160_fear",
+      "path": "clips/tempo/A_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct4_bpm180_fear",
+      "path": "clips/tempo/A_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "A_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "A",
+      "recording": "A_oct4_bpm200_fear",
+      "path": "clips/tempo/A_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm60_calm",
+      "path": "clips/tempo/Bb_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm70_calm",
+      "path": "clips/tempo/Bb_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm80_calm",
+      "path": "clips/tempo/Bb_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm160_fear",
+      "path": "clips/tempo/Bb_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm180_fear",
+      "path": "clips/tempo/Bb_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct3_bpm200_fear",
+      "path": "clips/tempo/Bb_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm60_calm",
+      "path": "clips/tempo/Bb_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm70_calm",
+      "path": "clips/tempo/Bb_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm80_calm",
+      "path": "clips/tempo/Bb_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm160_fear",
+      "path": "clips/tempo/Bb_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm180_fear",
+      "path": "clips/tempo/Bb_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "Bb",
+      "recording": "Bb_oct4_bpm200_fear",
+      "path": "clips/tempo/Bb_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm60_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct3_bpm60_calm",
+      "path": "clips/tempo/B_oct3_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm70_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct3_bpm70_calm",
+      "path": "clips/tempo/B_oct3_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm80_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct3_bpm80_calm",
+      "path": "clips/tempo/B_oct3_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm160_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct3_bpm160_fear",
+      "path": "clips/tempo/B_oct3_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm180_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct3_bpm180_fear",
+      "path": "clips/tempo/B_oct3_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "B_oct3_bpm200_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct3_bpm200_fear",
+      "path": "clips/tempo/B_oct3_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm60_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct4_bpm60_calm",
+      "path": "clips/tempo/B_oct4_bpm60_calm.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm70_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct4_bpm70_calm",
+      "path": "clips/tempo/B_oct4_bpm70_calm.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm80_calm",
+      "label": "calm",
+      "source": "B",
+      "recording": "B_oct4_bpm80_calm",
+      "path": "clips/tempo/B_oct4_bpm80_calm.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm160_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct4_bpm160_fear",
+      "path": "clips/tempo/B_oct4_bpm160_fear.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm180_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct4_bpm180_fear",
+      "path": "clips/tempo/B_oct4_bpm180_fear.wav"
+    },
+    {
+      "clip_id": "B_oct4_bpm200_fear",
+      "label": "fear",
+      "source": "B",
+      "recording": "B_oct4_bpm200_fear",
+      "path": "clips/tempo/B_oct4_bpm200_fear.wav"
+    },
+    {
+      "clip_id": "silence",
+      "label": "silence",
+      "source": "silence",
+      "recording": "silence",
+      "path": "clips/tempo/silence.wav"
+    }
+  ]
+}

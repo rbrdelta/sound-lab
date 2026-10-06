@@ -344,3 +344,19 @@ again and md5s must match.
 
 **Definition-gate tally:** Daniel — cue and concept, clip length fixed, the repetition note,
 same-volume rule, prediction, pass mark = 6. Claude — tempo values, note length, carrier = 3.
+
+## Result, tempo — 2026-10-06 (pod sound-lab-tempo, ~45 min incl. ~30 min slow setup on an
+## EUR-IS-1 host, terminated)
+
+Checks: pod renders byte-identical to local renders; repeat reading identical (both models);
+every clip registers vs silence at every layer.
+
+- **Qwen2-Audio — encoder 0.993 (143/144) → PASS (above Daniel's 90% line).** LM layers
+  0.896–0.986 at their lowest; mid layers 8–16 dip to ~0.90–0.91, then climb back toward 0.98.
+- **Audio Flamingo Next — encoder 1.000 (144/144) → PASS.** LM layers 0.903–1.000; mid layers
+  13–20 at ~0.90.
+- Daniel predicted 100%: essentially borne out at the ears (one clip short on Qwen).
+
+Noted: the mid-layer dip is larger than for roughness/volume, and both models show it. Tempo
+also moved note count and average loudness (registered co-movers), so a pass here cannot say
+which of those the ears used — Daniel's fallback (tempo by repetition count) stays on file.
