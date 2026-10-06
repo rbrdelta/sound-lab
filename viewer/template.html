@@ -1,0 +1,185 @@
+<title>Scratch Paper Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab notebook page. Controls on top, the map as the main exhibit, the layer curve beneath. */
+:root {
+  --bg: #f6f7f4; --panel: #ffffff; --ink: #1d2320; --muted: #5f6b66; --rule: #d9ded9;
+  --pos: #c2412d; --neg: #2f6f8f; --pass: #2e7d4f; --warn: #b7791f; --fail: #9b2c2c;
+  --display: "Fraunces", Georgia, serif; --body: "Source Sans 3", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141816; --panel: #1c211f; --ink: #e7ece9; --muted: #9aa8a2; --rule: #2e3532;
+  --pos: #f07a62; --neg: #6bb3d6; --pass: #5cc48a; --warn: #e3b04b; --fail: #ef7b7b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141816; --panel: #1c211f; --ink: #e7ece9; --muted: #9aa8a2; --rule: #2e3532;
+  --pos: #f07a62; --neg: #6bb3d6; --pass: #5cc48a; --warn: #e3b04b; --fail: #ef7b7b; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 20px; }
+h1 { font: 650 clamp(26px, 4vw, 36px)/1.1 var(--display); margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 66ch; margin: 6px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label { font: 600 12px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+select { font: 15px var(--body); padding: 6px 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); color: var(--ink); max-width: 100%; }
+.slider { flex: 1 1 260px; }
+input[type=range] { width: 100%; accent-color: var(--ink); }
+.board { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+.readout { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; }
+.layer-name { font: 650 22px var(--display); }
+.pill { font: 500 13px var(--mono); padding: 2px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.pass { color: var(--pass); } .pill.usable { color: var(--warn); } .pill.fail { color: var(--fail); }
+.acc { font: 500 15px var(--mono); font-variant-numeric: tabular-nums; }
+.legend { display: flex; gap: 16px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+canvas { width: 100%; display: block; border-radius: 6px; }
+#map { aspect-ratio: 16 / 10; max-width: 100%; }
+#curve { height: 150px; }
+.hint { font-size: 14px; color: var(--muted); min-height: 1.5em; font-family: var(--mono); }
+.notes { display: grid; gap: 10px; max-width: 70ch; }
+.notes h2 { font: 650 18px var(--display); margin: 8px 0 0; }
+.notes p { margin: 0; }
+button.play { font: 600 14px var(--body); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Scratch Paper Viewer</h1>
+    <p class="lede">Each dot is one clip. Left to right is where the detector scored it on a key or note it never practised on. Up and down is the biggest other difference in the model's numbers. When the two colours split left and right, the model's scratch paper carries the difference.</p>
+  </header>
+
+  <div class="controls">
+    <div class="field"><label for="test">Test</label><select id="test"></select></div>
+    <div class="field"><label for="model">Model</label><select id="model"></select></div>
+    <div class="field slider"><label for="layer">Layer: from the ears into the brain</label><input id="layer" type="range" min="0" max="32" value="0"></div>
+    <button class="play" id="play" type="button">Play through layers</button>
+  </div>
+
+  <section class="board" aria-live="polite">
+    <div class="readout">
+      <span class="layer-name" id="lname">ears</span>
+      <span class="acc" id="acc"></span>
+      <span class="pill" id="verdict"></span>
+    </div>
+    <div class="legend" id="legend"></div>
+    <canvas id="map" role="img" aria-label="Scatter map of clips for the selected layer"></canvas>
+    <div class="hint" id="hint">Hover a dot to see which clip it is.</div>
+  </section>
+
+  <section class="board">
+    <div class="readout"><span class="layer-name">Score at every layer</span></div>
+    <canvas id="curve" role="img" aria-label="Accuracy on unseen keys at every layer"></canvas>
+    <div class="legend"><span>Dashed lines: your pass mark for this test (fail below the lower one, pass above the upper one). Click the curve to jump to a layer.</span></div>
+  </section>
+
+  <section class="notes">
+    <h2>How to read it</h2>
+    <p>The left-right position is the detector from your hand-worked sheet: average one group, average the other, draw the line between them. Each clip is scored by a detector built without its key, so a split here is real hearing, not memory.</p>
+    <p>The up-down position is not told about the labels. It shows whatever varies most in the model's numbers, often pitch. If the colours separate up and down but not left and right, the model hears something, but not the thing we asked about.</p>
+    <p>Scores are spread so the cutoff sits at the centre line. Major vs minor shows the wrong-way lean: the colours cross over the line instead of splitting along it.</p>
+  </section>
+</div>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const tests = [...new Set(DATA.map(d => d.test))];
+let cur = null, layer = 0, pts = [], timer = null;
+
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function fill() {
+  $("test").innerHTML = tests.map(t => `<option>${t}</option>`).join("");
+  $("test").value = "Roughness";
+  models();
+}
+function models() {
+  const ms = DATA.filter(d => d.test === $("test").value).map(d => d.model);
+  const keep = $("model").value;
+  $("model").innerHTML = ms.map(m => `<option>${m}</option>`).join("");
+  if (ms.includes(keep)) $("model").value = keep;
+  pick();
+}
+function pick() {
+  cur = DATA.find(d => d.test === $("test").value && d.model === $("model").value);
+  $("layer").max = cur.layers.length - 1;
+  layer = Math.min(layer, cur.layers.length - 1);
+  $("layer").value = layer;
+  draw();
+}
+function verdict(a) { return a < cur.lo ? ["fail", "fail"] : a <= cur.hi ? ["usable", "usable with more clips"] : ["pass", "pass"]; }
+function setup(c) {
+  const r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
+  const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); return [g, r.width, r.height];
+}
+function draw() {
+  const L = cur.layers[layer];
+  $("lname").textContent = L.name;
+  $("acc").textContent = `${Math.round(L.acc * 1000) / 10}% right on unseen keys`;
+  const [cls, word] = verdict(L.acc);
+  const v = $("verdict"); v.className = "pill " + cls; v.textContent = word;
+  $("legend").innerHTML = `<span><span class="dot" style="background:var(--pos)"></span>${cur.pos}</span><span><span class="dot" style="background:var(--neg)"></span>${cur.neg}</span>`;
+  const c = $("map"), [g, W, H] = setup(c), pad = 28;
+  const xs = L.x, ys = L.y;
+  const lim = a => Math.max(3, ...a.map(Math.abs)) * 1.08;
+  const xl = lim(xs), yl = lim(ys);
+  const X = v => pad + (v + xl) / (2 * xl) * (W - 2 * pad);
+  const Y = v => H - pad - (v + yl) / (2 * yl) * (H - 2 * pad);
+  g.clearRect(0, 0, W, H);
+  g.strokeStyle = css("--rule"); g.lineWidth = 1;
+  g.beginPath(); g.moveTo(X(0), pad / 2); g.lineTo(X(0), H - pad / 2); g.stroke();
+  g.fillStyle = css("--muted"); g.font = `12px ${css("--body")}`;
+  g.textAlign = "left"; g.fillText(`scored ${cur.neg}`, pad, H - 8);
+  g.textAlign = "right"; g.fillText(`scored ${cur.pos}`, W - pad, H - 8);
+  g.textAlign = "center"; g.fillText("cutoff", X(0), 12);
+  pts = [];
+  const pos = css("--pos"), neg = css("--neg");
+  xs.forEach((x, i) => {
+    const px = X(x), py = Y(ys[i]);
+    pts.push([px, py, i]);
+    g.globalAlpha = 0.78; g.fillStyle = cur.isPos[i] ? pos : neg;
+    g.beginPath(); g.arc(px, py, 4.2, 0, Math.PI * 2); g.fill();
+  });
+  g.globalAlpha = 1;
+  curve();
+}
+function curve() {
+  const c = $("curve"), [g, W, H] = setup(c), padL = 40, padR = 12, padT = 10, padB = 24;
+  const n = cur.layers.length;
+  const X = i => padL + i / (n - 1) * (W - padL - padR);
+  const Y = a => padT + (1 - a) * (H - padT - padB);
+  g.clearRect(0, 0, W, H);
+  g.font = `12px ${css("--mono")}`; g.fillStyle = css("--muted"); g.textAlign = "right";
+  [0, 0.5, 1].forEach(a => { g.fillText(`${a * 100}%`, padL - 6, Y(a) + 4); });
+  g.strokeStyle = css("--rule"); g.setLineDash([]);
+  [0, 0.5, 1].forEach(a => { g.beginPath(); g.moveTo(padL, Y(a)); g.lineTo(W - padR, Y(a)); g.stroke(); });
+  g.setLineDash([4, 4]);
+  [[cur.lo, "--fail"], [cur.hi, "--pass"]].forEach(([a, t]) => { g.strokeStyle = css(t); g.beginPath(); g.moveTo(padL, Y(a)); g.lineTo(W - padR, Y(a)); g.stroke(); });
+  g.setLineDash([]);
+  g.strokeStyle = css("--ink"); g.lineWidth = 2; g.beginPath();
+  cur.layers.forEach((l, i) => i ? g.lineTo(X(i), Y(l.acc)) : g.moveTo(X(i), Y(l.acc))); g.stroke();
+  g.fillStyle = css("--ink"); g.beginPath(); g.arc(X(layer), Y(cur.layers[layer].acc), 5, 0, Math.PI * 2); g.fill();
+  g.fillStyle = css("--muted"); g.textAlign = "left"; g.fillText("ears", padL, H - 6);
+  g.textAlign = "right"; g.fillText(cur.layers[n - 1].name, W - padR, H - 6);
+  c.onclick = e => { const r = c.getBoundingClientRect(); const i = Math.round((e.clientX - r.left - padL) / (W - padL - padR) * (n - 1)); layer = Math.max(0, Math.min(n - 1, i)); $("layer").value = layer; draw(); };
+}
+$("map").addEventListener("mousemove", e => {
+  const r = $("map").getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+  let best = null, bd = 64;
+  pts.forEach(([x, y, i]) => { const d = (x - mx) ** 2 + (y - my) ** 2; if (d < bd) { bd = d; best = i; } });
+  $("hint").textContent = best === null ? "Hover a dot to see which clip it is." : `${cur.ids[best].replaceAll("_", " · ")}  (${cur.isPos[best] ? cur.pos : cur.neg})`;
+});
+$("test").onchange = models; $("model").onchange = pick;
+$("layer").oninput = e => { layer = +e.target.value; draw(); };
+$("play").onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $("play").textContent = "Play through layers"; return; }
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  layer = 0; draw(); $("play").textContent = "Stop";
+  timer = setInterval(() => { if (layer >= cur.layers.length - 1) { clearInterval(timer); timer = null; $("play").textContent = "Play through layers"; return; } layer++; $("layer").value = layer; draw(); }, reduce ? 900 : 350);
+};
+addEventListener("resize", draw);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+fill();
+</script>

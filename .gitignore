@@ -1,3 +1,5 @@
 clips/
 runs/
 logs_pod/
+viewer/data.json
+viewer/scratch-paper-viewer.html
