@@ -81,6 +81,35 @@ def tune_specs() -> list[dict]:
     return specs
 
 
+# Roughness set (Daniel 2026-10-06): one sustained organ note whose loudness flutters slowly
+# (calm) or fast (fear: the scream "roughness" range, 30-150 flutters a second). Only the flutter
+# rate differs between the classes; three rates per class are spread evenly so the detector can't
+# key on one exact rate. Notes: 12 pitch classes x 2 octaves. Graded on held-out pitch classes.
+ORGAN = 16  # General MIDI drawbar organ: a held note stays steady (no natural decay)
+ROUGH_LENGTH_S = 3.0
+FLUTTER_DEPTH = 0.8  # loudness swings between 20% and 180% of its average
+FLUTTER_HZ = {"calm": [3.0, 4.5, 6.0], "fear": [40.0, 70.0, 100.0]}
+
+
+def roughness_specs() -> list[dict]:
+    specs = []
+    for k, key in enumerate(KEYS):
+        for octave, base in OCTAVE_BASES.items():
+            for label, rates in FLUTTER_HZ.items():
+                for i, hz in enumerate(rates):
+                    cid = f"{key}_{octave}_rate{i}_{label}"
+                    specs.append({"clip_id": cid, "label": label, "source": key, "recording": cid,
+                                  "key": key, "arrangement": f"{hz:g}Hz", "octave": octave,
+                                  "events": [(0.0, ROUGH_LENGTH_S, [base + k])], "program": ORGAN,
+                                  "flutter_hz": hz})
+    return specs
+
+
+def flutter(audio: np.ndarray, hz: float) -> np.ndarray:
+    t = np.arange(len(audio)) / SR
+    return audio * (1.0 + FLUTTER_DEPTH * np.sin(2 * np.pi * hz * t))
+
+
 def clip_specs() -> list[dict]:
     specs = []
     for k, key in enumerate(KEYS):
@@ -94,14 +123,14 @@ def clip_specs() -> list[dict]:
     return specs
 
 
-def write_midi(events: list[tuple], path: Path) -> None:
+def write_midi(events: list[tuple], path: Path, program: int = 0) -> None:
     """events: (start_s, duration_s, [midi notes]). Default tempo -> 960 ticks per second."""
     import mido
 
     mid = mido.MidiFile(ticks_per_beat=480)
     tr = mido.MidiTrack()
     mid.tracks.append(tr)
-    tr.append(mido.Message("program_change", program=0, time=0))  # acoustic grand piano
+    tr.append(mido.Message("program_change", program=program, time=0))  # 0 = acoustic grand piano
     msgs = []  # (tick, order, message): offs sort before ons at the same tick
     for start, dur, notes in events:
         on, off = int(round(start * 960)), int(round((start + dur) * 960))
@@ -115,12 +144,12 @@ def write_midi(events: list[tuple], path: Path) -> None:
     mid.save(path)
 
 
-def render(events: list[tuple], sf2: str) -> np.ndarray:
+def render(events: list[tuple], sf2: str, program: int = 0) -> np.ndarray:
     import soundfile as sf
 
     with tempfile.TemporaryDirectory() as td:
         mpath, wpath = Path(td) / "c.mid", Path(td) / "c.wav"
-        write_midi(events, mpath)
+        write_midi(events, mpath, program)
         subprocess.run(["fluidsynth", "-ni", "-q", "-R", "0", "-C", "0", "-g", "1.0", "-r", str(SR),
                         "-F", str(wpath), sf2, str(mpath)], check=True, capture_output=True)
         audio, sr = sf.read(wpath, dtype="float64", always_2d=True)
@@ -149,16 +178,20 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--out", default="clips/controlled")
     p.add_argument("--sf2", default=DEFAULT_SF2)
-    p.add_argument("--set", default="chords", choices=["chords", "tunes"])
+    p.add_argument("--set", default="chords", choices=["chords", "tunes", "roughness"])
     args = p.parse_args()
-    specs, length = (clip_specs(), LENGTH_S) if args.set == "chords" else (tune_specs(), TUNE_LENGTH_S)
+    specs, length = {"chords": (clip_specs(), LENGTH_S), "tunes": (tune_specs(), TUNE_LENGTH_S),
+                     "roughness": (roughness_specs(), ROUGH_LENGTH_S)}[args.set]
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
 
     rows = []
     for s in specs:
         path = out / f"{s['clip_id']}.wav"
-        sf.write(path, finish(render(s["events"], args.sf2), length), SR)
+        audio = render(s["events"], args.sf2, s.get("program", 0))
+        if "flutter_hz" in s:
+            audio = flutter(audio[: int(length * SR)], s["flutter_hz"])
+        sf.write(path, finish(audio, length), SR)
         rows.append({**{k: s[k] for k in ("clip_id", "label", "source", "recording", "key",
                                           "arrangement", "octave")}, "path": str(path)})
     silent = out / "silence.wav"

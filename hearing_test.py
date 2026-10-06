@@ -25,7 +25,16 @@ from math import comb
 
 import numpy as np
 
-from probe import fit, ranking_score, verdict, load_run, FAIL_BELOW, PASS_ABOVE
+from probe import fit, ranking_score, load_run
+import probe
+
+FAIL_BELOW, PASS_ABOVE = probe.FAIL_BELOW, probe.PASS_ABOVE
+
+
+def verdict(acc: float) -> str:
+    if acc < FAIL_BELOW:
+        return "fail"
+    return "usable-more-clips" if acc <= PASS_ABOVE else "pass"
 
 PRIMARY = "encoder"
 
@@ -63,12 +72,18 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("run")
     p.add_argument("--json")
+    p.add_argument("--positive", default="minor", help="label scored as positive")
+    p.add_argument("--negative", default="major")
+    p.add_argument("--fail-below", type=float, default=probe.FAIL_BELOW)
+    p.add_argument("--pass-above", type=float, default=probe.PASS_ABOVE)
     args = p.parse_args()
+    global FAIL_BELOW, PASS_ABOVE
+    FAIL_BELOW, PASS_ABOVE = args.fail_below, args.pass_above
     feats, labels, _, sources, man = load_run(args.run)
     labels, sources = np.asarray(labels), np.asarray(sources)
     is_sil = labels == "silence"
-    chord = np.isin(labels, ["major", "minor"])
-    y = labels[chord] == "minor"
+    chord = np.isin(labels, [args.positive, args.negative])
+    y = labels[chord] == args.positive
 
     out = {"model": man["model"], "prompt": man["prompt"], "primary": PRIMARY,
            "repeat_check_identical": man.get("repeat_check_identical"), "layers": {}}

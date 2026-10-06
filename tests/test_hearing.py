@@ -1,6 +1,6 @@
 import numpy as np
 
-from make_clips import clip_specs, chord_notes, tune_specs, tune_notes
+from make_clips import clip_specs, chord_notes, tune_specs, tune_notes, roughness_specs, flutter, SR
 from hearing_test import leave_one_key_out, registers
 
 
@@ -54,3 +54,21 @@ def test_tune_set_is_balanced_and_differs_only_in_mood_notes():
         assert all(m - n in (0, -1) for m, n in zip(minor, notes)) and any(m != n for m, n in zip(minor, notes))
     assert tune_notes(60, "minor", "melody") == [60, 62, 63, 67, 68, 67, 63, 60]
     assert all(e[0] + e[1] <= 4.0 for s in specs for e in s["events"])
+
+
+def test_roughness_set_balanced_and_flutter_rate_is_the_only_class_difference():
+    specs = roughness_specs()
+    assert len(specs) == 144 and sum(s["label"] == "fear" for s in specs) == 72
+    for s in specs:
+        assert (s["flutter_hz"] >= 30) == (s["label"] == "fear")
+    calm_notes = sorted(s["events"][0][2][0] for s in specs if s["label"] == "calm")
+    fear_notes = sorted(s["events"][0][2][0] for s in specs if s["label"] == "fear")
+    assert calm_notes == fear_notes  # same notes in both classes
+
+
+def test_flutter_has_the_requested_rate():
+    import numpy as np
+    x = np.ones(SR * 2)
+    y = flutter(x, 70.0)
+    spec = np.abs(np.fft.rfft(y - y.mean()))
+    assert abs(np.argmax(spec) * SR / len(y) - 70.0) < 1.0

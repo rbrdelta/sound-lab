@@ -216,3 +216,40 @@ models, same shape: the change registers per key, not as a shared "minor" qualit
 
 Per the interpretation key: both fail → neither available open model carries mode in a form
 the registered detector can read; back to Daniel before any further model search.
+
+---
+
+# Hearing test, roughness (calm vs fearful flutter) — registration
+
+Committed before any clip is rendered or read (2026-10-06).
+
+1. **Throughline (Daniel).** Major vs minor is not detectable, so it is not a lever for inducing
+   fear later. Fear is a combination of cues that music and voice share; Daniel's sequence tests
+   them one at a time — roughness, then volume, then tempo — toward "can a model 'feel the
+   sound' ... which elicit behavioral change?" This is the hearing test for the first cue.
+2. **Question.** Can the internal numbers tell calm flutter from fearful flutter on notes the
+   detector never practised on?
+3. **The one variable that moves:** flutter rate — how many times a second the loudness swings.
+   Calm 3 / 4.5 / 6 per second (speech-like); fear 40 / 70 / 100 per second (scream "roughness"
+   range, 30–150). Slow vs fast (Daniel) rather than steady vs fast, so only the rate differs.
+   Spread evenly: 12 notes x 2 octaves, three rates per class. 144 clips + silence.
+4. **Held fixed:** carrier = one sustained organ note (General MIDI drawbar organ; chosen because
+   a piano note fades and strings carry their own natural vibrato near the calm rates), flutter
+   depth (loudness swings between 20% and 180% of average), length 3.0 s, average loudness
+   (RMS-matched after flutter), 16 kHz mono, prompt, bf16, eager attention, seed 0, single
+   forward pass. Graded leave-one-note-out (whole pitch classes held out). Cannot be held fixed:
+   pitch across notes (spread evenly, held out).
+5. **Prediction (Daniel), verbatim:** "it's not about the pitch, it's about the intonations, which
+   are the tested rates should be very visible. So I expect clear improvements in scoring." (No
+   number stated; not converted into one here.)
+6. **Interpretation key — new pass mark set by Daniel for this cue:** below 75% → do not use;
+   75%–90% → usable, with more clips; above 90% → use as is. Sound check (vs silence) first,
+   as for every test (Daniel). Encoder primary; LM layers a profile.
+7. **What it changes:** pass → roughness becomes a candidate fear lever, and the volume test
+   follows; fail → it does not, and the volume test follows (Daniel's sequence either way).
+   **Models:** both Qwen2-Audio and Audio Flamingo Next, each scored on its own — the comparison
+   Daniel asked for in the last round.
+
+**Definition-gate tally:** Daniel — throughline/reframe, cue choice (roughness), slow-vs-fast
+contrast, sound check for each, prediction, pass-mark lines (75 / 90) = 6. Claude — carrier
+choice, specific rates and depth, spread/grading = 3. Daniel above half.
