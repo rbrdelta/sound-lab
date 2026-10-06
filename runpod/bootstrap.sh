@@ -3,20 +3,30 @@
 #   bash runpod/bootstrap.sh
 # Installs pinned deps, starts the idle watchdog, prints a sanity line. Does not download models
 # (the first extract.py run does that, into HF_HOME on the persistent volume).
-# UNVERIFIED: written without a pod. Assumes a Runpod PyTorch image with CUDA 12.x, python3,
-# nvidia-smi, and /workspace as the persistent volume.
+# Verified 2026-10-05 on an RTX 4090 secure pod, image runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404
+# (CUDA 12.8 driver 570, /workspace persistent volume).
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+# SSH sessions don't inherit the container's env, so pull the pod id + API key the watchdog needs
+# (runpodctl stop) from PID 1. Verified 2026-10-05: without this RUNPOD_POD_ID is empty over SSH.
+if [[ -z "${RUNPOD_POD_ID:-}" && -r /proc/1/environ ]]; then
+  set -a; eval "$(tr '\0' '\n' < /proc/1/environ | grep -E '^RUNPOD_(POD_ID|API_KEY)=')"; set +a
+fi
 
 export HF_HOME="${HF_HOME:-/workspace/hf-cache}"   # model weights survive pod restarts
 mkdir -p "$HF_HOME" runs logs
 
-python3 -m pip install --upgrade pip
+# Ubuntu 24.04 images refuse system-wide pip installs (PEP 668), so install into .venv, which
+# verify.sh already prefers. Kept on /workspace so it survives a pod stop.
+[[ -x .venv/bin/python ]] || python3 -m venv .venv
+PY=.venv/bin/python
+"$PY" -m pip install --upgrade pip
 # CUDA 12.8 wheels; change cu128 if the pod's driver is older (check: nvidia-smi, top right).
-python3 -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
-python3 -m pip install -r requirements-pod.txt
+"$PY" -m pip install torch==2.9.1 --index-url https://download.pytorch.org/whl/cu128
+"$PY" -m pip install -r requirements-pod.txt
 
-python3 - <<'PY'
+"$PY" - <<'PY'
 import torch, transformers
 print("torch", torch.__version__, "cuda", torch.version.cuda, "gpu", torch.cuda.is_available(),
       torch.cuda.get_device_name(0) if torch.cuda.is_available() else "-")
