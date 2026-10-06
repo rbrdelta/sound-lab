@@ -300,3 +300,17 @@ SoundFont needed) to check they play correctly; the pod renders them again and t
 **Definition-gate tally:** Daniel — cue, calm/fear concept (progressive vs jumps), fixing range
 to one variable, instrument change, prediction, pass mark = 6. Claude — level set and orders,
 glide/cut implementation, steady-tone carrier design = 3. Daniel above half.
+
+## Result, volume — 2026-10-06 (pod sound-lab-volume, ~15 min, terminated)
+
+Checks: pod renders byte-identical to the local renders (md5); repeat reading identical (both
+models); every clip registers vs silence at every layer.
+
+- **Qwen2-Audio — encoder 1.000 (144/144) → PASS (above 80%).** All 32 LM layers 1.000.
+- **Audio Flamingo Next — encoder 1.000 (144/144) → PASS.** All 28 LM layers 1.000.
+- Daniel predicted 70% ("against a gradient this is more subtle"): the result was higher — the
+  ears separate gradual from jumping loudness completely, with range held fixed.
+
+Scope: as with roughness, the classes were far apart by design (glides vs jumps of 3+ levels with
+instant cuts). Instant cuts also add brief clicks/broadband energy at each jump — part of what
+"abrupt" sounds like, but a separable sub-cue if the fear-detection work needs to attribute it.

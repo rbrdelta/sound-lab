@@ -1,0 +1,503 @@
+{
+ "model": "Qwen/Qwen2-Audio-7B-Instruct",
+ "prompt": "Listen to this audio clip.",
+ "primary": "encoder",
+ "repeat_check_identical": true,
+ "layers": {
+  "encoder": {
+   "sound": {
+    "min_chord_to_silence": 20.708144168822784,
+    "median_chord_to_chord": 11.24356449970941,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_0": {
+   "sound": {
+    "min_chord_to_silence": 22.172699822491158,
+    "median_chord_to_chord": 9.762539295292331,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_1": {
+   "sound": {
+    "min_chord_to_silence": 22.165482835794137,
+    "median_chord_to_chord": 9.748325000574098,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_2": {
+   "sound": {
+    "min_chord_to_silence": 22.77460599737691,
+    "median_chord_to_chord": 10.43348956858453,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_3": {
+   "sound": {
+    "min_chord_to_silence": 22.891279937011213,
+    "median_chord_to_chord": 10.476567053302134,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_4": {
+   "sound": {
+    "min_chord_to_silence": 23.2541182856821,
+    "median_chord_to_chord": 10.59905805450434,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_5": {
+   "sound": {
+    "min_chord_to_silence": 23.56773721432893,
+    "median_chord_to_chord": 10.727725635475872,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_6": {
+   "sound": {
+    "min_chord_to_silence": 23.962635982210962,
+    "median_chord_to_chord": 10.866226122174213,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_7": {
+   "sound": {
+    "min_chord_to_silence": 24.064458018658122,
+    "median_chord_to_chord": 10.838524019717871,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_8": {
+   "sound": {
+    "min_chord_to_silence": 37.867483907565266,
+    "median_chord_to_chord": 12.59507029541864,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_9": {
+   "sound": {
+    "min_chord_to_silence": 37.74056188358685,
+    "median_chord_to_chord": 12.488053839463586,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_10": {
+   "sound": {
+    "min_chord_to_silence": 37.370337029229425,
+    "median_chord_to_chord": 12.266022557512022,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_11": {
+   "sound": {
+    "min_chord_to_silence": 37.066865715250685,
+    "median_chord_to_chord": 12.158032189712003,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_12": {
+   "sound": {
+    "min_chord_to_silence": 36.97080510661529,
+    "median_chord_to_chord": 12.0395816991636,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_13": {
+   "sound": {
+    "min_chord_to_silence": 36.770685463768125,
+    "median_chord_to_chord": 12.044444361092992,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_14": {
+   "sound": {
+    "min_chord_to_silence": 36.924322597259604,
+    "median_chord_to_chord": 12.05280845287733,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_15": {
+   "sound": {
+    "min_chord_to_silence": 37.02355582059062,
+    "median_chord_to_chord": 12.140890666748001,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_16": {
+   "sound": {
+    "min_chord_to_silence": 37.4282613044212,
+    "median_chord_to_chord": 12.333278998920127,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_17": {
+   "sound": {
+    "min_chord_to_silence": 37.65403928610467,
+    "median_chord_to_chord": 12.710403872471602,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_18": {
+   "sound": {
+    "min_chord_to_silence": 38.066411623092414,
+    "median_chord_to_chord": 13.099274784221961,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_19": {
+   "sound": {
+    "min_chord_to_silence": 38.30797263186305,
+    "median_chord_to_chord": 13.632335056767548,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_20": {
+   "sound": {
+    "min_chord_to_silence": 38.87211588748033,
+    "median_chord_to_chord": 14.412722620104597,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_21": {
+   "sound": {
+    "min_chord_to_silence": 40.137544420733605,
+    "median_chord_to_chord": 15.291573045885755,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_22": {
+   "sound": {
+    "min_chord_to_silence": 40.79033050004985,
+    "median_chord_to_chord": 16.202929310484173,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_23": {
+   "sound": {
+    "min_chord_to_silence": 42.007705279945455,
+    "median_chord_to_chord": 17.50298409271508,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_24": {
+   "sound": {
+    "min_chord_to_silence": 43.21759023920668,
+    "median_chord_to_chord": 18.669243306406887,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_25": {
+   "sound": {
+    "min_chord_to_silence": 45.10823870820742,
+    "median_chord_to_chord": 20.249438837299746,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_26": {
+   "sound": {
+    "min_chord_to_silence": 46.54240309279794,
+    "median_chord_to_chord": 21.757065870037096,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_27": {
+   "sound": {
+    "min_chord_to_silence": 48.63410568093234,
+    "median_chord_to_chord": 23.442635624353905,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_28": {
+   "sound": {
+    "min_chord_to_silence": 50.832552606344905,
+    "median_chord_to_chord": 25.032802319008347,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_29": {
+   "sound": {
+    "min_chord_to_silence": 54.01985237297047,
+    "median_chord_to_chord": 28.050168350981938,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_30": {
+   "sound": {
+    "min_chord_to_silence": 56.888836983699406,
+    "median_chord_to_chord": 31.906748057689406,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  },
+  "lm_31": {
+   "sound": {
+    "min_chord_to_silence": 57.59502405675709,
+    "median_chord_to_chord": 34.810211645519864,
+    "registers": true
+   },
+   "major_minor": {
+    "n": 144,
+    "correct": 144,
+    "accuracy": 1.0,
+    "ranking": 1.0,
+    "verdict": "pass",
+    "chance_of_doing_this_well_by_luck": 4.484155085839415e-44
+   }
+  }
+ }
+}
