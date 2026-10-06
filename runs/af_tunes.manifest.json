@@ -1,0 +1,1061 @@
+{
+  "model": "nvidia/audio-flamingo-next-hf",
+  "transformers_version": "5.6.2",
+  "torch_version": "2.9.1+cu128",
+  "dtype": "bf16",
+  "attn_implementation": "eager",
+  "seed": 0,
+  "prompt": "Listen to this audio clip.",
+  "pooling": "mean over audio-token positions; encoder: mean over valid (non-padding) frames",
+  "read_point": "single forward pass, no generation, before any output token",
+  "n_lm_layers": 28,
+  "layers": [
+    "encoder",
+    "lm_0",
+    "lm_1",
+    "lm_2",
+    "lm_3",
+    "lm_4",
+    "lm_5",
+    "lm_6",
+    "lm_7",
+    "lm_8",
+    "lm_9",
+    "lm_10",
+    "lm_11",
+    "lm_12",
+    "lm_13",
+    "lm_14",
+    "lm_15",
+    "lm_16",
+    "lm_17",
+    "lm_18",
+    "lm_19",
+    "lm_20",
+    "lm_21",
+    "lm_22",
+    "lm_23",
+    "lm_24",
+    "lm_25",
+    "lm_26",
+    "lm_27"
+  ],
+  "repeat_check_identical": true,
+  "clips": [
+    {
+      "clip_id": "C_oct3_melody_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct3_melody_major",
+      "path": "clips/tunes/C_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "C_oct3_melody_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct3_melody_minor",
+      "path": "clips/tunes/C_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "C_oct3_arpeggio_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct3_arpeggio_major",
+      "path": "clips/tunes/C_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "C_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct3_arpeggio_minor",
+      "path": "clips/tunes/C_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "C_oct3_scale_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct3_scale_major",
+      "path": "clips/tunes/C_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "C_oct3_scale_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct3_scale_minor",
+      "path": "clips/tunes/C_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "C_oct4_melody_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct4_melody_major",
+      "path": "clips/tunes/C_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "C_oct4_melody_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct4_melody_minor",
+      "path": "clips/tunes/C_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "C_oct4_arpeggio_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct4_arpeggio_major",
+      "path": "clips/tunes/C_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "C_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct4_arpeggio_minor",
+      "path": "clips/tunes/C_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "C_oct4_scale_major",
+      "label": "major",
+      "source": "C",
+      "recording": "C_oct4_scale_major",
+      "path": "clips/tunes/C_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "C_oct4_scale_minor",
+      "label": "minor",
+      "source": "C",
+      "recording": "C_oct4_scale_minor",
+      "path": "clips/tunes/C_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct3_melody_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct3_melody_major",
+      "path": "clips/tunes/Db_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "Db_oct3_melody_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct3_melody_minor",
+      "path": "clips/tunes/Db_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct3_arpeggio_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct3_arpeggio_major",
+      "path": "clips/tunes/Db_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Db_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct3_arpeggio_minor",
+      "path": "clips/tunes/Db_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct3_scale_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct3_scale_major",
+      "path": "clips/tunes/Db_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "Db_oct3_scale_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct3_scale_minor",
+      "path": "clips/tunes/Db_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct4_melody_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct4_melody_major",
+      "path": "clips/tunes/Db_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "Db_oct4_melody_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct4_melody_minor",
+      "path": "clips/tunes/Db_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct4_arpeggio_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct4_arpeggio_major",
+      "path": "clips/tunes/Db_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Db_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct4_arpeggio_minor",
+      "path": "clips/tunes/Db_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Db_oct4_scale_major",
+      "label": "major",
+      "source": "Db",
+      "recording": "Db_oct4_scale_major",
+      "path": "clips/tunes/Db_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "Db_oct4_scale_minor",
+      "label": "minor",
+      "source": "Db",
+      "recording": "Db_oct4_scale_minor",
+      "path": "clips/tunes/Db_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "D_oct3_melody_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct3_melody_major",
+      "path": "clips/tunes/D_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "D_oct3_melody_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct3_melody_minor",
+      "path": "clips/tunes/D_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "D_oct3_arpeggio_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct3_arpeggio_major",
+      "path": "clips/tunes/D_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "D_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct3_arpeggio_minor",
+      "path": "clips/tunes/D_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "D_oct3_scale_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct3_scale_major",
+      "path": "clips/tunes/D_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "D_oct3_scale_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct3_scale_minor",
+      "path": "clips/tunes/D_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "D_oct4_melody_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct4_melody_major",
+      "path": "clips/tunes/D_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "D_oct4_melody_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct4_melody_minor",
+      "path": "clips/tunes/D_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "D_oct4_arpeggio_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct4_arpeggio_major",
+      "path": "clips/tunes/D_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "D_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct4_arpeggio_minor",
+      "path": "clips/tunes/D_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "D_oct4_scale_major",
+      "label": "major",
+      "source": "D",
+      "recording": "D_oct4_scale_major",
+      "path": "clips/tunes/D_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "D_oct4_scale_minor",
+      "label": "minor",
+      "source": "D",
+      "recording": "D_oct4_scale_minor",
+      "path": "clips/tunes/D_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_melody_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct3_melody_major",
+      "path": "clips/tunes/Eb_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_melody_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct3_melody_minor",
+      "path": "clips/tunes/Eb_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_arpeggio_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct3_arpeggio_major",
+      "path": "clips/tunes/Eb_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct3_arpeggio_minor",
+      "path": "clips/tunes/Eb_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_scale_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct3_scale_major",
+      "path": "clips/tunes/Eb_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct3_scale_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct3_scale_minor",
+      "path": "clips/tunes/Eb_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_melody_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct4_melody_major",
+      "path": "clips/tunes/Eb_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_melody_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct4_melody_minor",
+      "path": "clips/tunes/Eb_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_arpeggio_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct4_arpeggio_major",
+      "path": "clips/tunes/Eb_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct4_arpeggio_minor",
+      "path": "clips/tunes/Eb_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_scale_major",
+      "label": "major",
+      "source": "Eb",
+      "recording": "Eb_oct4_scale_major",
+      "path": "clips/tunes/Eb_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "Eb_oct4_scale_minor",
+      "label": "minor",
+      "source": "Eb",
+      "recording": "Eb_oct4_scale_minor",
+      "path": "clips/tunes/Eb_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "E_oct3_melody_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct3_melody_major",
+      "path": "clips/tunes/E_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "E_oct3_melody_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct3_melody_minor",
+      "path": "clips/tunes/E_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "E_oct3_arpeggio_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct3_arpeggio_major",
+      "path": "clips/tunes/E_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "E_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct3_arpeggio_minor",
+      "path": "clips/tunes/E_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "E_oct3_scale_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct3_scale_major",
+      "path": "clips/tunes/E_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "E_oct3_scale_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct3_scale_minor",
+      "path": "clips/tunes/E_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "E_oct4_melody_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct4_melody_major",
+      "path": "clips/tunes/E_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "E_oct4_melody_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct4_melody_minor",
+      "path": "clips/tunes/E_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "E_oct4_arpeggio_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct4_arpeggio_major",
+      "path": "clips/tunes/E_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "E_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct4_arpeggio_minor",
+      "path": "clips/tunes/E_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "E_oct4_scale_major",
+      "label": "major",
+      "source": "E",
+      "recording": "E_oct4_scale_major",
+      "path": "clips/tunes/E_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "E_oct4_scale_minor",
+      "label": "minor",
+      "source": "E",
+      "recording": "E_oct4_scale_minor",
+      "path": "clips/tunes/E_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "F_oct3_melody_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct3_melody_major",
+      "path": "clips/tunes/F_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "F_oct3_melody_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct3_melody_minor",
+      "path": "clips/tunes/F_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "F_oct3_arpeggio_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct3_arpeggio_major",
+      "path": "clips/tunes/F_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "F_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct3_arpeggio_minor",
+      "path": "clips/tunes/F_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "F_oct3_scale_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct3_scale_major",
+      "path": "clips/tunes/F_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "F_oct3_scale_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct3_scale_minor",
+      "path": "clips/tunes/F_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "F_oct4_melody_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct4_melody_major",
+      "path": "clips/tunes/F_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "F_oct4_melody_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct4_melody_minor",
+      "path": "clips/tunes/F_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "F_oct4_arpeggio_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct4_arpeggio_major",
+      "path": "clips/tunes/F_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "F_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct4_arpeggio_minor",
+      "path": "clips/tunes/F_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "F_oct4_scale_major",
+      "label": "major",
+      "source": "F",
+      "recording": "F_oct4_scale_major",
+      "path": "clips/tunes/F_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "F_oct4_scale_minor",
+      "label": "minor",
+      "source": "F",
+      "recording": "F_oct4_scale_minor",
+      "path": "clips/tunes/F_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_melody_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct3_melody_major",
+      "path": "clips/tunes/Gb_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_melody_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct3_melody_minor",
+      "path": "clips/tunes/Gb_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_arpeggio_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct3_arpeggio_major",
+      "path": "clips/tunes/Gb_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct3_arpeggio_minor",
+      "path": "clips/tunes/Gb_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_scale_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct3_scale_major",
+      "path": "clips/tunes/Gb_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct3_scale_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct3_scale_minor",
+      "path": "clips/tunes/Gb_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_melody_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct4_melody_major",
+      "path": "clips/tunes/Gb_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_melody_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct4_melody_minor",
+      "path": "clips/tunes/Gb_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_arpeggio_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct4_arpeggio_major",
+      "path": "clips/tunes/Gb_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct4_arpeggio_minor",
+      "path": "clips/tunes/Gb_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_scale_major",
+      "label": "major",
+      "source": "Gb",
+      "recording": "Gb_oct4_scale_major",
+      "path": "clips/tunes/Gb_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "Gb_oct4_scale_minor",
+      "label": "minor",
+      "source": "Gb",
+      "recording": "Gb_oct4_scale_minor",
+      "path": "clips/tunes/Gb_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "G_oct3_melody_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct3_melody_major",
+      "path": "clips/tunes/G_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "G_oct3_melody_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct3_melody_minor",
+      "path": "clips/tunes/G_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "G_oct3_arpeggio_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct3_arpeggio_major",
+      "path": "clips/tunes/G_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "G_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct3_arpeggio_minor",
+      "path": "clips/tunes/G_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "G_oct3_scale_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct3_scale_major",
+      "path": "clips/tunes/G_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "G_oct3_scale_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct3_scale_minor",
+      "path": "clips/tunes/G_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "G_oct4_melody_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct4_melody_major",
+      "path": "clips/tunes/G_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "G_oct4_melody_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct4_melody_minor",
+      "path": "clips/tunes/G_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "G_oct4_arpeggio_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct4_arpeggio_major",
+      "path": "clips/tunes/G_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "G_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct4_arpeggio_minor",
+      "path": "clips/tunes/G_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "G_oct4_scale_major",
+      "label": "major",
+      "source": "G",
+      "recording": "G_oct4_scale_major",
+      "path": "clips/tunes/G_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "G_oct4_scale_minor",
+      "label": "minor",
+      "source": "G",
+      "recording": "G_oct4_scale_minor",
+      "path": "clips/tunes/G_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_melody_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct3_melody_major",
+      "path": "clips/tunes/Ab_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_melody_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct3_melody_minor",
+      "path": "clips/tunes/Ab_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_arpeggio_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct3_arpeggio_major",
+      "path": "clips/tunes/Ab_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct3_arpeggio_minor",
+      "path": "clips/tunes/Ab_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_scale_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct3_scale_major",
+      "path": "clips/tunes/Ab_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct3_scale_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct3_scale_minor",
+      "path": "clips/tunes/Ab_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_melody_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct4_melody_major",
+      "path": "clips/tunes/Ab_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_melody_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct4_melody_minor",
+      "path": "clips/tunes/Ab_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_arpeggio_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct4_arpeggio_major",
+      "path": "clips/tunes/Ab_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct4_arpeggio_minor",
+      "path": "clips/tunes/Ab_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_scale_major",
+      "label": "major",
+      "source": "Ab",
+      "recording": "Ab_oct4_scale_major",
+      "path": "clips/tunes/Ab_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "Ab_oct4_scale_minor",
+      "label": "minor",
+      "source": "Ab",
+      "recording": "Ab_oct4_scale_minor",
+      "path": "clips/tunes/Ab_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "A_oct3_melody_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct3_melody_major",
+      "path": "clips/tunes/A_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "A_oct3_melody_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct3_melody_minor",
+      "path": "clips/tunes/A_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "A_oct3_arpeggio_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct3_arpeggio_major",
+      "path": "clips/tunes/A_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "A_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct3_arpeggio_minor",
+      "path": "clips/tunes/A_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "A_oct3_scale_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct3_scale_major",
+      "path": "clips/tunes/A_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "A_oct3_scale_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct3_scale_minor",
+      "path": "clips/tunes/A_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "A_oct4_melody_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct4_melody_major",
+      "path": "clips/tunes/A_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "A_oct4_melody_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct4_melody_minor",
+      "path": "clips/tunes/A_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "A_oct4_arpeggio_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct4_arpeggio_major",
+      "path": "clips/tunes/A_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "A_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct4_arpeggio_minor",
+      "path": "clips/tunes/A_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "A_oct4_scale_major",
+      "label": "major",
+      "source": "A",
+      "recording": "A_oct4_scale_major",
+      "path": "clips/tunes/A_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "A_oct4_scale_minor",
+      "label": "minor",
+      "source": "A",
+      "recording": "A_oct4_scale_minor",
+      "path": "clips/tunes/A_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_melody_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct3_melody_major",
+      "path": "clips/tunes/Bb_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_melody_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct3_melody_minor",
+      "path": "clips/tunes/Bb_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_arpeggio_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct3_arpeggio_major",
+      "path": "clips/tunes/Bb_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct3_arpeggio_minor",
+      "path": "clips/tunes/Bb_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_scale_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct3_scale_major",
+      "path": "clips/tunes/Bb_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct3_scale_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct3_scale_minor",
+      "path": "clips/tunes/Bb_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_melody_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct4_melody_major",
+      "path": "clips/tunes/Bb_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_melody_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct4_melody_minor",
+      "path": "clips/tunes/Bb_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_arpeggio_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct4_arpeggio_major",
+      "path": "clips/tunes/Bb_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct4_arpeggio_minor",
+      "path": "clips/tunes/Bb_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_scale_major",
+      "label": "major",
+      "source": "Bb",
+      "recording": "Bb_oct4_scale_major",
+      "path": "clips/tunes/Bb_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "Bb_oct4_scale_minor",
+      "label": "minor",
+      "source": "Bb",
+      "recording": "Bb_oct4_scale_minor",
+      "path": "clips/tunes/Bb_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "B_oct3_melody_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct3_melody_major",
+      "path": "clips/tunes/B_oct3_melody_major.wav"
+    },
+    {
+      "clip_id": "B_oct3_melody_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct3_melody_minor",
+      "path": "clips/tunes/B_oct3_melody_minor.wav"
+    },
+    {
+      "clip_id": "B_oct3_arpeggio_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct3_arpeggio_major",
+      "path": "clips/tunes/B_oct3_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "B_oct3_arpeggio_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct3_arpeggio_minor",
+      "path": "clips/tunes/B_oct3_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "B_oct3_scale_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct3_scale_major",
+      "path": "clips/tunes/B_oct3_scale_major.wav"
+    },
+    {
+      "clip_id": "B_oct3_scale_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct3_scale_minor",
+      "path": "clips/tunes/B_oct3_scale_minor.wav"
+    },
+    {
+      "clip_id": "B_oct4_melody_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct4_melody_major",
+      "path": "clips/tunes/B_oct4_melody_major.wav"
+    },
+    {
+      "clip_id": "B_oct4_melody_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct4_melody_minor",
+      "path": "clips/tunes/B_oct4_melody_minor.wav"
+    },
+    {
+      "clip_id": "B_oct4_arpeggio_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct4_arpeggio_major",
+      "path": "clips/tunes/B_oct4_arpeggio_major.wav"
+    },
+    {
+      "clip_id": "B_oct4_arpeggio_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct4_arpeggio_minor",
+      "path": "clips/tunes/B_oct4_arpeggio_minor.wav"
+    },
+    {
+      "clip_id": "B_oct4_scale_major",
+      "label": "major",
+      "source": "B",
+      "recording": "B_oct4_scale_major",
+      "path": "clips/tunes/B_oct4_scale_major.wav"
+    },
+    {
+      "clip_id": "B_oct4_scale_minor",
+      "label": "minor",
+      "source": "B",
+      "recording": "B_oct4_scale_minor",
+      "path": "clips/tunes/B_oct4_scale_minor.wav"
+    },
+    {
+      "clip_id": "silence",
+      "label": "silence",
+      "source": "silence",
+      "recording": "silence",
+      "path": "clips/tunes/silence.wav"
+    }
+  ]
+}

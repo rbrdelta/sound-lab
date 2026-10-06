@@ -195,3 +195,24 @@ Committed before Audio Flamingo reads any clip (2026-10-06).
 predictions); Claude — run both sets = 1; license reading = mechanics. Daniel above half.
 
 **License:** read and recorded above (non-commercial = academic purposes only).
+
+## Result, Audio Flamingo on both sets — 2026-10-06 (pod sound-lab-flamingo, ~20 min, terminated)
+
+Checks: clip sets byte-identical to the Qwen runs (md5); repeat reading identical for both sets;
+every clip registers vs silence at every layer. Model has 28 LM layers (card config; paper says 36).
+Note: AF's input format puts the prompt before the audio, so its LM layers (not the encoder)
+can be shaped by the prompt where Qwen's cannot.
+
+- **Held chords — encoder 0.424 (61/144), ranking 0.38 → FAIL.** All 28 LM layers 0.417–0.458.
+  Daniel predicted "won't do much better than Qwen": borne out (Qwen 0.389).
+- **Tunes — encoder 0.340 (49/144), ranking 0.26 → FAIL.** LM layers 0.326–0.451. Daniel
+  predicted above 60%: not borne out.
+
+Post-hoc, exploratory: keys-seen accuracy 0.465–0.618 (best: tunes, mid layer 14 at 0.618 — one
+of several looks, a lead at most). The rotating-direction pattern found in Qwen repeats in both
+AF sets: each key's major→minor change points against the other 11 keys' average (−0.13 to
+−0.30; 10–12/12 keys negative) and the 12 changes largely cancel (0.17–0.23). Four runs, two
+models, same shape: the change registers per key, not as a shared "minor" quality.
+
+Per the interpretation key: both fail → neither available open model carries mode in a form
+the registered detector can read; back to Daniel before any further model search.
