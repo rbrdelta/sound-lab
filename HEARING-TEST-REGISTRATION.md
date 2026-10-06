@@ -253,3 +253,19 @@ Committed before any clip is rendered or read (2026-10-06).
 **Definition-gate tally:** Daniel — throughline/reframe, cue choice (roughness), slow-vs-fast
 contrast, sound check for each, prediction, pass-mark lines (75 / 90) = 6. Claude — carrier
 choice, specific rates and depth, spread/grading = 3. Daniel above half.
+
+## Result, roughness — 2026-10-06 (pod sound-lab-roughness, ~20 min, terminated)
+
+Checks: render identical across two passes; repeat reading identical (both models); every clip
+registers vs silence at every layer (both models). Carrier note's own loudness wobble ±26% over
+the held part (drawbar organ), vs the ±80% flutter added — identical across classes, so it is not
+a class difference, but it is not a perfectly steady carrier either.
+
+- **Qwen2-Audio — encoder 1.000 (144/144) → PASS (above Daniel's 90% line).** Every LM layer
+  0.944–1.000 (dip to ~0.95 across mid layers 8–16, back to 1.000 by layer 21).
+- **Audio Flamingo Next — encoder 1.000 (144/144) → PASS.** Every one of 28 LM layers 1.000.
+- Daniel's prediction ("very visible ... clear improvements in scoring"): borne out.
+
+Scope: the classes were far apart by design (3–6 vs 40–100 flutters a second). This shows the
+ears carry flutter rate cleanly; it does not show where between those rates the line sits, and
+it is a hearing result, not evidence the model "feels" fear.
