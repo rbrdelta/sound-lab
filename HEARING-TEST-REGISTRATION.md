@@ -127,3 +127,23 @@ Committed before any tune is rendered or read (2026-10-06).
 **Definition-gate tally:** Daniel — 4 s length, loudness/length normalised, prediction, Audio
 Flamingo next = 4. Claude — sequence over chord (Daniel asked which is the better test), tune
 shapes, mood-note design = 3. Both — the question = 0.5 each. Daniel 4.5 / Claude 3.5.
+
+## Result, run two (tunes) — 2026-10-06 (pod sound-lab-tunes, ~14 min, terminated after)
+
+Checks: render identical across two passes; repeat reading identical; every tune registers vs
+silence at every layer.
+
+**Primary (encoder): 0.361 held-out-key accuracy (52/144), ranking 0.26 → FAIL.** All 32 LM
+layers fail (0.361–0.500). Daniel predicted over 60%: not borne out. The wrong-way lean from
+run one reproduced and grew (0.389 → 0.361).
+
+Post-hoc, exploratory — most likely reading of the wrong-way lean (both runs): per key, the
+average major→minor change in the readings is real but points a different way in each key, and
+the 12 directions largely cancel (|mean| / mean |change| = 0.18–0.22 at encoder and last layer;
+~0.29 would be expected from unrelated directions). Each held-out key's change points against
+the other 11 keys' average (cosine −0.19 to −0.26; 10/12 keys negative at the encoder, 11/12 at
+the last layer). A detector built on 11 keys therefore points backwards for the 12th. Reading:
+the ears register *which note* moved, not a shared "went minor" quality. Mid layer (lm_16) shows
+the pattern weakly (−0.04/−0.09). Not registered; a lead, not a finding.
+
+Next (Daniel's sequence): the same tune set on Audio Flamingo, after the license check.
