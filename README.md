@@ -34,6 +34,10 @@ These are hearing results only. The group names in the data (`fear` / `calm`) ar
 fast and slow settings; nothing here measures fear. That is the next step, with human-rated real
 music.
 
+## Scratch Paper Viewer
+
+An interactive page showing what happens inside the model for every clip: one row per clip, scored by the held-out detector, layer by layer. File: [`viewer/scratch-paper-viewer.html`](viewer/scratch-paper-viewer.html) (download and open in a browser). A hosted version will be linked here from rowbyroh.com once it is up.
+
 ## Files
 
 | File | What it does |
@@ -43,7 +47,7 @@ music.
 | `hearing_test.py` | Scores a run: a sound-vs-silence check, then leave-one-key-out accuracy per layer against a pass mark. |
 | `probe.py` | The detector: the average of one group minus the average of the other, with the cutoff halfway between. |
 | `simulate_clips.py` | Estimates how many clips a later experiment needs, given a detector's accuracy. |
-| `viewer/` | Builds the Scratch Paper Viewer: per-layer score plots for every test, plus one clip traced from waveform to readout. |
+| `viewer/` | Builds the Scratch Paper Viewer: per-layer score plots for every test, plus one clip traced from waveform to readout. The built page is committed as `viewer/scratch-paper-viewer.html` (one self-contained file; download and open it in a browser). |
 | `runpod/` | Pod setup (`bootstrap.sh`) and an idle watchdog that stops the pod. |
 | `runs/*.result.json`, `runs/*.manifest.json` | Scores and run manifests for every test. The raw readings (`.npz`, about 570 MB) are not in the repo. |
 | `REAL-MUSIC-SOURCES.md` | Emotion-labelled music datasets for the next step, and their licenses. |
