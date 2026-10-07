@@ -360,3 +360,11 @@ every clip registers vs silence at every layer.
 Noted: the mid-layer dip is larger than for roughness/volume, and both models show it. Tempo
 also moved note count and average loudness (registered co-movers), so a pass here cannot say
 which of those the ears used — Daniel's fallback (tempo by repetition count) stays on file.
+
+## Sanity check of the passing tests (Daniel's debrief question, 2026-10-06; post-hoc)
+
+Shuffle calm/fear labels within each note, re-grade the ears with the same leave-one-note-out
+detector, 100 shuffles per run. A sound detector should fall to ~50% on shuffled labels.
+Shuffled medians 0.493–0.517 (highest single shuffle 0.597–0.667); real 0.993–1.000.
+qwen/af roughness, volume, tempo all pass this check: the detector is not finding a separation
+that isn't there.
