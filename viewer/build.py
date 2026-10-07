@@ -55,6 +55,7 @@ for test, run, model, pos, neg, (lo, hi) in RUNS:
                 "ids": ids, "isPos": [int(v) for v in y], "layers": layers})
 
 data = json.dumps(out, separators=(",", ":"))
-page = open("viewer/template.html").read().replace("__DATA__", data)
+walk = open("viewer/walkthrough.json").read()
+page = open("viewer/template.html").read().replace("__DATA__", data).replace("__WALK__", walk)
 open("viewer/scratch-paper-viewer.html", "w").write(page)
 print("wrote viewer/scratch-paper-viewer.html")

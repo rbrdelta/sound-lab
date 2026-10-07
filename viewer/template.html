@@ -42,6 +42,21 @@ canvas { width: 100%; display: block; border-radius: 6px; }
 .notes p { margin: 0; }
 button.play { font: 600 14px var(--body); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
 button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.pipe { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.step { flex: 1 1 140px; min-width: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; align-content: start; }
+.step b { font: 650 15px var(--display); }
+.step .n { font: 500 13px var(--mono); color: var(--pos); font-variant-numeric: tabular-nums; }
+.step span { font-size: 14px; color: var(--muted); }
+.arrow { align-self: center; color: var(--muted); font: 18px var(--mono); }
+.toggle { display: flex; gap: 8px; flex-wrap: wrap; }
+.toggle button { font: 600 14px var(--body); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.panel-title { font: 600 12px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.panel-note { font-size: 14px; color: var(--muted); margin: 0; max-width: 70ch; }
+#wave { height: 70px; } #spec { height: 110px; }
+.grids { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.grids > div { min-width: 0; display: grid; gap: 6px; }
+#ears, #brain, #mini { width: 100%; aspect-ratio: 1 / 1; max-width: 100%; image-rendering: pixelated; }
 </style>
 
 <div class="wrap">
@@ -49,6 +64,25 @@ button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 
     <h1>Scratch Paper Viewer</h1>
     <p class="lede">Each dot is one clip. Left to right is where the detector scored it on a key or note it never practised on. Up and down is the biggest other difference in the model's numbers. When the two colours split left and right, the model's scratch paper carries the difference.</p>
   </header>
+
+
+  <section class="board">
+    <div class="readout"><span class="layer-name">What you are looking at</span></div>
+    <div class="pipe" aria-label="How one clip is processed, for Qwen2-Audio">
+      <div class="step"><b>Sound</b><span class="n">48,000 samples</span><span>3 s of air pressure, 16,000 numbers a second</span></div>
+      <div class="arrow">&rarr;</div>
+      <div class="step"><b>Picture</b><span class="n">pitch &times; time</span><span>which pitches are present at each moment</span></div>
+      <div class="arrow">&rarr;</div>
+      <div class="step"><b>Ears</b><span class="n">32 layers &middot; 1,280 per slice</span><span>reworks the picture into about 25 slices a second</span></div>
+      <div class="arrow">&rarr;</div>
+      <div class="step"><b>Connector</b><span class="n">1,280 &rarr; 4,096</span><span>translates each slice into the brain&rsquo;s format</span></div>
+      <div class="arrow">&rarr;</div>
+      <div class="step"><b>Brain</b><span class="n">32 layers &middot; 4,096 per slice</span><span>each layer rewrites every slice, also reading the prompt words</span></div>
+      <div class="arrow">&rarr;</div>
+      <div class="step"><b>Readout</b><span class="n">1 list per layer</span><span>we average the slices; the detector reads one blend of the numbers</span></div>
+    </div>
+    <p class="panel-note">Audio Flamingo has the same shape: 28 brain layers of 3,584 numbers. No single number means anything on its own; meaning lives in patterns across many numbers at once, the way a chord is several notes together.</p>
+  </section>
 
   <div class="controls">
     <div class="field"><label for="test">Test</label><select id="test"></select></div>
@@ -74,6 +108,22 @@ button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 
     <div class="legend"><span>Dashed lines: your pass mark for this test (fail below the lower one, pass above the upper one). Click the curve to jump to a layer.</span></div>
   </section>
 
+
+  <section class="board">
+    <div class="readout"><span class="layer-name">Follow one clip</span></div>
+    <p class="panel-note">Two real clips from the roughness test: the same note (C), same average loudness, different flutter. Switch between them and watch what changes at each stage.</p>
+    <div class="toggle" id="wtoggle"></div>
+    <div class="panel-title">1 &middot; The sound wave</div>
+    <canvas id="wave" role="img" aria-label="Waveform of the selected clip"></canvas>
+    <div class="panel-title">2 &middot; The picture the ears receive (low pitches at the bottom)</div>
+    <canvas id="spec" role="img" aria-label="Spectrogram of the selected clip"></canvas>
+    <div class="grids">
+      <div><div class="panel-title">3 &middot; Ears reading: 1,280 numbers</div><canvas id="ears" role="img" aria-label="Ears reading as a grid of 1,280 cells"></canvas><p class="panel-note">Each cell is one number, averaged over the clip. Warm = high, cool = low.</p></div>
+      <div><div class="panel-title">4 &middot; Brain reading at <span id="wlname">layer 1</span>: 4,096 numbers</div><canvas id="brain" role="img" aria-label="Brain layer reading as a grid of 4,096 cells"></canvas><input id="wlayer" type="range" min="0" max="31" value="0" aria-label="Brain layer"></div>
+      <div><div class="panel-title">5 &middot; Where it lands on the map</div><canvas id="mini" role="img" aria-label="Position of the selected clip on the map"></canvas><p class="panel-note">All 144 clips at the same layer; this clip is the ringed dot. The detector squeezes its 4,096 numbers into left-right.</p></div>
+    </div>
+    <p class="panel-note">The per-slice readings were not saved, so stages 3 and 4 show each clip&rsquo;s average over its roughly 75 slices. The two grids look similar to the eye; the difference is a faint pattern spread across thousands of cells, which is exactly what the detector is built to find.</p>
+  </section>
   <section class="notes">
     <h2>How to read it</h2>
     <p>The left-right position is the detector from your hand-worked sheet: average one group, average the other, draw the line between them. Each clip is scored by a detector built without its key, so a split here is real hearing, not memory.</p>
@@ -182,4 +232,43 @@ $("play").onclick = () => {
 addEventListener("resize", draw);
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 fill();
+
+const WALK = __WALK__;
+let wi = 1, wl = 0;
+function heat(v) {
+  const t = (v + 99) / 198;
+  const a = [47, 111, 143], m = [235, 235, 228], b = [194, 65, 45];
+  const mix = (p, q, k) => p.map((c, i) => Math.round(c + (q[i] - c) * k));
+  return `rgb(${(t < .5 ? mix(a, m, t * 2) : mix(m, b, (t - .5) * 2)).join(",")})`;
+}
+function grid(id, vals, cols) {
+  const c = $(id), [g, W] = setup(c), rows = Math.ceil(vals.length / cols), cw = W / cols, ch = W / rows;
+  vals.forEach((v, i) => { g.fillStyle = heat(v); g.fillRect((i % cols) * cw, Math.floor(i / cols) * ch, Math.ceil(cw), Math.ceil(ch)); });
+}
+function walkDraw() {
+  const w = WALK[wi];
+  $("wtoggle").innerHTML = WALK.map((c, i) => `<button type="button" aria-pressed="${i === wi}" data-i="${i}">${c.name} (${c.rate})</button>`).join("");
+  $("wtoggle").querySelectorAll("button").forEach(b => b.onclick = () => { wi = +b.dataset.i; walkDraw(); });
+  let [g, W, H] = setup($("wave"));
+  g.fillStyle = css("--ink");
+  w.wave.forEach(([lo, hi], i) => { const x = i / w.wave.length * W, y0 = H / 2 - hi * H * 1.2, y1 = H / 2 - lo * H * 1.2; g.fillRect(x, y0, Math.max(1, W / w.wave.length), Math.max(1, y1 - y0)); });
+  [g, W, H] = setup($("spec"));
+  const T = w.spec[0].length, F = w.spec.length;
+  g.fillStyle = css("--ink");
+  w.spec.forEach((row, f) => row.forEach((v, t) => { g.globalAlpha = v / 255; g.fillRect(t / T * W, H - (f + 1) / F * H, Math.ceil(W / T), Math.ceil(H / F)); }));
+  g.globalAlpha = 1;
+  grid("ears", w.ears, 40);
+  grid("brain", w.brain[wl], 64);
+  $("wlname").textContent = `layer ${wl + 1}`;
+  const R = DATA.find(d => d.test === "Roughness" && d.model === "Qwen2-Audio"), L = R.layers[wl + 1], k = R.ids.indexOf(w.id);
+  [g, W, H] = setup($("mini"));
+  const lim = a => Math.max(3, ...a.map(Math.abs)) * 1.1, xl = lim(L.x), yl = lim(L.y);
+  const X = v => (v + xl) / (2 * xl) * W, Y = v => H - (v + yl) / (2 * yl) * H;
+  g.strokeStyle = css("--rule"); g.beginPath(); g.moveTo(X(0), 0); g.lineTo(X(0), H); g.stroke();
+  L.x.forEach((x, i) => { g.globalAlpha = .5; g.fillStyle = R.isPos[i] ? css("--pos") : css("--neg"); g.beginPath(); g.arc(X(x), Y(L.y[i]), 3, 0, 7); g.fill(); });
+  g.globalAlpha = 1; g.strokeStyle = css("--ink"); g.lineWidth = 2.5; g.beginPath(); g.arc(X(L.x[k]), Y(L.y[k]), 8, 0, 7); g.stroke();
+}
+$("wlayer").oninput = e => { wl = +e.target.value; walkDraw(); };
+addEventListener("resize", walkDraw);
+walkDraw();
 </script>
