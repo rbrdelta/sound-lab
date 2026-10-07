@@ -36,7 +36,7 @@ music.
 
 ## Scratch Paper Viewer
 
-An interactive page showing what happens inside the model for every clip: one row per clip, scored by the held-out detector, layer by layer. File: [`viewer/scratch-paper-viewer.html`](viewer/scratch-paper-viewer.html) (download and open in a browser). A hosted version will be linked here from rowbyroh.com once it is up.
+An interactive page showing what happens inside the model for every clip: one row per clip, scored by the held-out detector, layer by layer. File: [`viewer/scratch-paper-viewer.html`](viewer/scratch-paper-viewer.html) (download and open in a browser). Hosted version: [rowbyroh.com/lab/scratch-paper](https://rowbyroh.com/lab/scratch-paper), linked from the write-up, [Emotional Resonance EP01 — Hearing Test](https://rowbyroh.com/blog/hearing-test).
 
 ## Files
 
