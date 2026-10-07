@@ -368,3 +368,18 @@ detector, 100 shuffles per run. A sound detector should fall to ~50% on shuffled
 Shuffled medians 0.493–0.517 (highest single shuffle 0.597–0.667); real 0.993–1.000.
 qwen/af roughness, volume, tempo all pass this check: the detector is not finding a separation
 that isn't there.
+
+## Naming the clip groups (Daniel, 2026-10-06)
+
+The hearing-test groups are named for what they literally are, not "fear" / "calm": nothing in
+these tests knows about fear — the detector only separates two groups of clips. "Fear" is used
+only where people's fear ratings are involved (the real-music step). The data files keep their
+original labels so results stay linked to their evidence; this table maps them:
+
+| Test | label `fear` in the data | label `calm` in the data |
+|---|---|---|
+| Roughness | fast-flutter (40–100 per second) | slow-flutter (3–6 per second) |
+| Volume | jumping loudness | gradual loudness |
+| Tempo | fast-tempo (160–200 per minute) | relaxed-tempo (60–80 per minute) |
+
+The shuffled-label check above: "calm/fear labels" there means these group labels.

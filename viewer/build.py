@@ -4,7 +4,12 @@ x = each clip's leave-one-key-out detector score (the graded score, cutoff at 0)
 biggest unlabelled variation (first principal component). Both standardised per layer.
 """
 import json
+import sys
+from pathlib import Path
+
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from probe import load_run, fit
 
 RUNS = [("Major vs minor — chords", "hearing_controlled", "Qwen2-Audio", "minor", "major", (2/3, 0.8)),
@@ -43,7 +48,10 @@ for test, run, model, pos, neg, (lo, hi) in RUNS:
         layers.append({"name": "ears" if name == "encoder" else f"layer {int(name[3:]) + 1}",
                        "acc": round(res[name]["major_minor"]["accuracy"], 3),
                        "x": [round(v, 2) for v in s], "y": [round(v, 2) for v in pc]})
-    out.append({"test": test, "model": model, "pos": pos, "neg": neg, "lo": lo, "hi": hi,
+    NAMES = {"Roughness": ("fast flutter", "slow flutter"), "Volume": ("jumping loudness", "gradual loudness"),
+             "Tempo": ("fast tempo", "relaxed tempo")}
+    pos_name, neg_name = NAMES.get(test, (pos, neg))
+    out.append({"test": test, "model": model, "pos": pos_name, "neg": neg_name, "lo": lo, "hi": hi,
                 "ids": ids, "isPos": [int(v) for v in y], "layers": layers})
 
 data = json.dumps(out, separators=(",", ":"))
