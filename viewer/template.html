@@ -34,7 +34,7 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .legend { display: flex; gap: 16px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 canvas { width: 100%; display: block; border-radius: 6px; }
-#map { aspect-ratio: 16 / 10; max-width: 100%; }
+#map { height: 520px; max-width: 100%; }
 #curve { height: 150px; }
 .hint { font-size: 14px; color: var(--muted); min-height: 1.5em; font-family: var(--mono); }
 .notes { display: grid; gap: 10px; max-width: 70ch; }
@@ -62,7 +62,7 @@ button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 
 <div class="wrap">
   <header>
     <h1>Scratch Paper Viewer</h1>
-    <p class="lede">Each dot is one clip. Left to right is where the detector scored it on a key or note it never practised on. Up and down is the biggest other difference in the model's numbers. When the two colours split left and right, the model's scratch paper carries the difference.</p>
+    <p class="lede">Each row is one clip. Left to right is where the detector scored it on a key or note it never practised on; the line in the middle is the cutoff. When the two colours sit on opposite sides of the line, the model's scratch paper carries the difference.</p>
   </header>
 
 
@@ -98,7 +98,7 @@ button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 
       <span class="pill" id="verdict"></span>
     </div>
     <div class="legend" id="legend"></div>
-    <canvas id="map" role="img" aria-label="Scatter map of clips for the selected layer"></canvas>
+    <canvas id="map" role="img" aria-label="One row per clip: detector score for the selected layer"></canvas>
     <div class="hint" id="hint">Hover a dot to see which clip it is.</div>
   </section>
 
@@ -120,15 +120,15 @@ button.play:focus-visible, select:focus-visible, input:focus-visible { outline: 
     <div class="grids">
       <div><div class="panel-title">3 &middot; Ears reading: 1,280 numbers</div><canvas id="ears" role="img" aria-label="Ears reading as a grid of 1,280 cells"></canvas><p class="panel-note">Each cell is one number, averaged over the clip. Warm = high, cool = low.</p></div>
       <div><div class="panel-title">4 &middot; Brain reading at <span id="wlname">layer 1</span>: 4,096 numbers</div><canvas id="brain" role="img" aria-label="Brain layer reading as a grid of 4,096 cells"></canvas><input id="wlayer" type="range" min="0" max="31" value="0" aria-label="Brain layer"></div>
-      <div><div class="panel-title">5 &middot; Where it lands on the map</div><canvas id="mini" role="img" aria-label="Position of the selected clip on the map"></canvas><p class="panel-note">All 144 clips at the same layer; this clip is the ringed dot. The detector squeezes its 4,096 numbers into left-right.</p></div>
+      <div><div class="panel-title">5 &middot; Where it lands on the map</div><canvas id="mini" role="img" aria-label="Position of the selected clip on the map"></canvas><p class="panel-note">All 144 clips at the same layer, one row each; this clip is ringed. The detector squeezes its 4,096 numbers into one left-right score.</p></div>
     </div>
     <p class="panel-note">The per-slice readings were not saved, so stages 3 and 4 show each clip&rsquo;s average over its roughly 75 slices. The two grids look similar to the eye; the difference is a faint pattern spread across thousands of cells, which is exactly what the detector is built to find.</p>
   </section>
   <section class="notes">
     <h2>How to read it</h2>
     <p>The left-right position is the detector from your hand-worked sheet: average one group, average the other, draw the line between them. Each clip is scored by a detector built without its key, so a split here is real hearing, not memory.</p>
-    <p>The up-down position is not told about the labels. It shows whatever varies most in the model's numbers, often pitch. If the colours separate up and down but not left and right, the model hears something, but not the thing we asked about.</p>
-    <p>Scores are spread so the cutoff sits at the centre line. Major vs minor shows the wrong-way lean: the colours cross over the line instead of splitting along it.</p>
+    <p>Up and down carries no measurement. Each row is simply one clip: the top group first, the other below, each sorted from low notes to high. The bar from the centre line shows how far, and which way, the detector scored that clip.</p>
+    <p>Scores are spread so the cutoff sits at the centre line. Major vs minor shows the wrong-way lean: many top-group bars point the wrong way.</p>
   </section>
 </div>
 
@@ -172,11 +172,11 @@ function draw() {
   const v = $("verdict"); v.className = "pill " + cls; v.textContent = word;
   $("legend").innerHTML = `<span><span class="dot" style="background:var(--pos)"></span>${cur.pos}</span><span><span class="dot" style="background:var(--neg)"></span>${cur.neg}</span>`;
   const c = $("map"), [g, W, H] = setup(c), pad = 28;
-  const xs = L.x, ys = L.y;
+  const xs = L.x, n = xs.length;
   const lim = a => Math.max(3, ...a.map(Math.abs)) * 1.08;
-  const xl = lim(xs), yl = lim(ys);
+  const xl = lim(xs);
   const X = v => pad + (v + xl) / (2 * xl) * (W - 2 * pad);
-  const Y = v => H - pad - (v + yl) / (2 * yl) * (H - 2 * pad);
+  const Y = r => pad + (r + 0.5) / n * (H - 2 * pad);
   g.clearRect(0, 0, W, H);
   g.strokeStyle = css("--rule"); g.lineWidth = 1;
   g.beginPath(); g.moveTo(X(0), pad / 2); g.lineTo(X(0), H - pad / 2); g.stroke();
@@ -186,13 +186,18 @@ function draw() {
   g.textAlign = "center"; g.fillText("cutoff", X(0), 12);
   pts = [];
   const pos = css("--pos"), neg = css("--neg");
+  const half = Y(n / 2 - 0.5) + (H - 2 * pad) / n / 2;
+  g.strokeStyle = css("--rule"); g.beginPath(); g.moveTo(pad, half); g.lineTo(W - pad, half); g.stroke();
+  g.fillStyle = css("--muted"); g.textAlign = "left";
+  g.fillText(`${cur.pos} clips`, pad + 2, pad - 4); g.fillText(`${cur.neg} clips`, pad + 2, half + 14);
+  const rh = Math.max(1.5, (H - 2 * pad) / n * 0.7);
   xs.forEach((x, i) => {
-    const px = X(x), py = Y(ys[i]);
+    const px = X(x), py = Y(cur.row[i]);
     pts.push([px, py, i]);
-    g.globalAlpha = 0.78; g.fillStyle = cur.isPos[i] ? pos : neg;
-    g.beginPath(); g.arc(px, py, 4.2, 0, Math.PI * 2); g.fill();
+    g.fillStyle = cur.isPos[i] ? pos : neg;
+    g.fillRect(Math.min(px, X(0)), py - rh / 2, Math.abs(px - X(0)), rh);
+    g.beginPath(); g.arc(px, py, Math.max(2, rh), 0, Math.PI * 2); g.fill();
   });
-  g.globalAlpha = 1;
   curve();
 }
 function curve() {
@@ -262,11 +267,11 @@ function walkDraw() {
   $("wlname").textContent = `layer ${wl + 1}`;
   const R = DATA.find(d => d.test === "Roughness" && d.model === "Qwen2-Audio"), L = R.layers[wl + 1], k = R.ids.indexOf(w.id);
   [g, W, H] = setup($("mini"));
-  const lim = a => Math.max(3, ...a.map(Math.abs)) * 1.1, xl = lim(L.x), yl = lim(L.y);
-  const X = v => (v + xl) / (2 * xl) * W, Y = v => H - (v + yl) / (2 * yl) * H;
+  const lim = a => Math.max(3, ...a.map(Math.abs)) * 1.1, xl = lim(L.x), n = L.x.length;
+  const X = v => (v + xl) / (2 * xl) * W, Y = r => (r + 0.5) / n * H;
   g.strokeStyle = css("--rule"); g.beginPath(); g.moveTo(X(0), 0); g.lineTo(X(0), H); g.stroke();
-  L.x.forEach((x, i) => { g.globalAlpha = .5; g.fillStyle = R.isPos[i] ? css("--pos") : css("--neg"); g.beginPath(); g.arc(X(x), Y(L.y[i]), 3, 0, 7); g.fill(); });
-  g.globalAlpha = 1; g.strokeStyle = css("--ink"); g.lineWidth = 2.5; g.beginPath(); g.arc(X(L.x[k]), Y(L.y[k]), 8, 0, 7); g.stroke();
+  L.x.forEach((x, i) => { g.globalAlpha = .45; g.fillStyle = R.isPos[i] ? css("--pos") : css("--neg"); g.beginPath(); g.arc(X(x), Y(R.row[i]), 2.5, 0, 7); g.fill(); });
+  g.globalAlpha = 1; g.strokeStyle = css("--ink"); g.lineWidth = 2.5; g.beginPath(); g.arc(X(L.x[k]), Y(R.row[k]), 8, 0, 7); g.stroke();
 }
 $("wlayer").oninput = e => { wl = +e.target.value; walkDraw(); };
 addEventListener("resize", walkDraw);

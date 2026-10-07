@@ -1,7 +1,8 @@
 """Build the Scratch Paper Viewer from saved readings: python viewer/build.py (from sound-lab/).
 
-x = each clip's leave-one-key-out detector score (the graded score, cutoff at 0); y = the layer's
-biggest unlabelled variation (first principal component). Both standardised per layer.
+x = each clip's leave-one-key-out detector score (the graded score, cutoff at 0), standardised per
+layer. Each row is one clip (Daniel, 2026-10-06: an unlabelled vertical axis implies meaning it
+doesn't have): rows grouped by group label, then sorted by octave, key and variant.
 """
 import json
 import sys
@@ -42,16 +43,21 @@ for test, run, model, pos, neg, (lo, hi) in RUNS:
             d = fit(X[~t & y], X[~t & ~y])
             s[t] = d.scores(X[t]) - d.cutoff
         s = s / (np.std(s) or 1)
-        Xc = X - X.mean(0)
-        pc = Xc @ np.linalg.svd(Xc, full_matrices=False)[2][0]
-        pc = pc / (np.std(pc) or 1)
         layers.append({"name": "ears" if name == "encoder" else f"layer {int(name[3:]) + 1}",
                        "acc": round(res[name]["major_minor"]["accuracy"], 3),
-                       "x": [round(v, 2) for v in s], "y": [round(v, 2) for v in pc]})
+                       "x": [round(v, 2) for v in s]})
     NAMES = {"Roughness": ("fast flutter", "slow flutter"), "Volume": ("jumping loudness", "gradual loudness"),
              "Tempo": ("fast tempo", "relaxed tempo")}
     pos_name, neg_name = NAMES.get(test, (pos, neg))
-    out.append({"test": test, "model": model, "pos": pos_name, "neg": neg_name, "lo": lo, "hi": hi,
+    KEYS = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+    def sortkey(i):
+        p = ids[i].split("_")
+        return (not y[i], p[1], KEYS.index(p[0]), p[2])
+    order = sorted(range(len(ids)), key=sortkey)
+    row = [0] * len(ids)
+    for r_, i in enumerate(order):
+        row[i] = r_
+    out.append({"test": test, "model": model, "row": row, "pos": pos_name, "neg": neg_name, "lo": lo, "hi": hi,
                 "ids": ids, "isPos": [int(v) for v in y], "layers": layers})
 
 data = json.dumps(out, separators=(",", ":"))
