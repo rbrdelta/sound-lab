@@ -1,78 +1,190 @@
-# Real music, decoding step — registration (DRAFT, not yet committed)
+# Real music, decoding step — registration (DRAFT 2, not yet approved)
 
-Draft written 2026-10-21 from Daniel's answers in that day's design talk; his words are on file
-verbatim in the private notebook (`shadow-ledger/NEXT-SESSION.md`, "Real-music test — Daniel's
-first design inputs" onward). Becomes the registration once Daniel has read it. Nothing has been
-run.
+Rewritten 2026-10-21 at the end of the design talk. Every design answer from Daniel is on file
+verbatim in the private notebook (`shadow-ledger/NEXT-SESSION.md`, from "Real-music test —
+Daniel's first design inputs" onward). Who decided what is marked inline. Becomes the
+registration when Daniel approves it at the start of the next session. Nothing has been run.
 
-**Role:** instrumentation. This is the first of two clean parts (Daniel): **decoding**, then
-**measuring** (the ten-word experiment). It finds the emotion directions that the measuring part
-and the later switch-an-emotion-on step depend on. It does not measure behavior.
+**Role:** instrumentation. The first of two clean parts (Daniel): **decoding**, then
+**measuring** (the ten-word experiment). Decoding finds the emotion directions that the measuring
+part, and later the switch-an-emotion-on step, depend on. It does not measure behavior.
 
-1. **Throughline.** The hearing tests (2026-10-06) showed both models' ears pick up physical change
-   over time (tempo, roughness, loudness) almost perfectly and do not pick up major vs minor.
-   The next question is whether anything inside the model tracks the emotion people hear in real
-   music. That is the bridge (Daniel): without emotion directions there is nothing to compare the
-   ten words against and nothing to switch on.
-2. **Question (Daniel).** When a real music clip is played to the model, can a readout of its
-   inside tell which of five emotions listeners rated the clip as? Start with the obvious clips
-   "to see if it can even detect the emotion first."
-3. **The one variable that moves:** the emotion the clip was chosen for: anger, fear, happiness,
-   sadness, tenderness (Daniel: five, the film set's rated emotions). Equal clips per emotion,
-   random order (Daniel).
-4. **Held fixed:** prompt "Listen to this audio clip." (Daniel); no answer generated, one forward
-   pass per clip, read before any output, as in the hearing test (Daniel); 16 kHz mono; model
-   weights, bf16, eager attention, seed 0. Both models, Qwen2-Audio-7B-Instruct and Audio
-   Flamingo Next (Daniel). One silence clip for the sound check.
-   **Cannot be held fixed:** everything else about real music: instruments, tempo, density, the
-   film it came from. Spread across emotions only by the random draw.
-   **Loudness differs by emotion** (measured from the files, decoding clips, average level):
-   anger −20.4 dB, happiness −21.6, fear −26.9, sadness −28.0, tenderness −28.6. Named risk:
-   *loudness posing as emotion.* **Kept as recorded** (Daniel: "Loudness is a dimension we
-   shouldn't eliminate"). If the results are inconclusive, a follow-up run levels every clip to the
-   same average loudness to see what loudness was contributing (Daniel).
-5. **Clips.** Film soundtracks, Eerola & Vuoskoski 2011 (OSF p6vkg); audio kept private, never
-   in this repo. Built by `make_film_clips.py`.
-   - Decoding: the larger first set (360 clips, 30 chosen for each emotion), minus every clip that
-     is the same excerpt as a measuring-part clip, then **20 per emotion = 100 clips, mostly clear
-     but some unclear** (Daniel): 15 where listeners rated the chosen emotion highest, 5 where
-     they rated another emotion highest (split: Claude). The clear-only 75 are also scored
-     separately, as a side reading.
-   - Measuring part: the 25 clips in the second set's five "high" groups (5 per emotion).
-     **No clip is in both** (Claude's proposal; Daniel: use the clips "for whatever helps us
-     bring the most value"). The second set's published `link` column was confirmed against the
-     audio for all 25: each linked clip is the best match among all 360 by a wide margin.
-   - Not checkable: the first set's track list is not published, so two different excerpts of
-     the same film cue could sit on both sides. Stated as a limitation.
-6. **Readout.** Music alone (Daniel). For each emotion, average the model's inside readings over
-   its clips; a clip is called the emotion whose average it sits closest to. A clip counts as
-   correct only if that is its chosen emotion (Daniel). Every clip is scored by a readout built
-   without it. Primary signal = the inside readout (Daniel). Every layer gets a score, and the
-   best layer becomes the primary one, fixed for the measuring part (Claude; Daniel agreed). Because
-   choosing the best of many layers can win by luck, the luck level is measured the same way:
-   shuffle the emotion labels, pick the best layer again, repeat.
-7. **Order the results are read in** (Claude proposed at Daniel's request; one run collects
-   everything):
-   1. Happiness vs sadness: does anything register at all? Fail → stop.
-   2. Happiness vs fear: both high-energy, so loudness cannot carry it.
-   3. Tenderness vs sadness: the same check at low energy.
-   4. All five together.
-8. **Pass marks (Daniel).** Each two-emotion check: 2/3 (luck = 1/2). All five: 55% (luck = 1/5).
-   Daniel: "don't stop the program too early." Fixed after this.
-9. **Predictions (Daniel), before any reading.** Over half right on the readout: "I assume the
-   model understands fear as a concept already." If these models had Claude-like training,
-   at least 70%. (His prediction for the measuring part, near zero, is recorded there.)
-10. **Interpretation key.**
-    - Silence sits no farther from the clips than they sit from each other → sound not
-      registering; stop.
-    - Step 1 fails → no emotion signal found; stop.
-    - Step 1 passes, steps 2 and 3 fail → loudness posing as emotion.
-    - Steps 2 and 3 pass → something beyond energy. Step 4 shows how far.
-    - In step 4, mistakes inside an energy group (fear called anger, sadness called tenderness)
-      point to energy; correct picks inside a group point past it.
-11. **Definition-gate tally (draft).** Daniel: question, five emotions, music only, prompt, no
-    generation, both models, obvious clips first, target-match scoring, equal counts in random
-    order, two clean parts, happiness vs sadness first, inside readout as primary, 2/3, 55%,
-    prediction, 20 per emotion mostly clear, loudness kept with a leveled follow-up = 17. Claude:
-    clip split, order of the remaining steps, primary layer chosen on the decoding clips, loudness
-    check, 15/5 clear split = 5. Daniel above half.
+## 1. Throughline
+
+The hearing tests (2026-10-06) showed both models' ears pick up physical change over time (tempo,
+roughness, loudness) almost perfectly and do not pick up major vs minor. So some cues people link
+to emotion survive the conversion of sound into numbers, and at least one does not. Whether
+emotion itself survives is unknown (Daniel). This step extends the map from sound properties to
+emotion. Without emotion directions there is nothing to compare the ten words against and nothing
+to switch on (Daniel: "that's the key step and open question").
+
+## 2. Questions
+
+1. **Detection (Daniel).** When a real music clip is played to the model, can a readout of its
+   inside tell which of five emotions listeners rated it as? Start with the obvious ones "to see
+   if it can even detect the emotion first."
+2. **When and where (Daniel).** Which moment in the sound, and which layer, does the emotion
+   register at? Does averaging over the whole clip blur a signal that only spikes at certain
+   moments?
+3. **Opposites and clusters (Daniel).** Built separately, do opposite emotions point in opposite
+   directions (happiness vs sadness; anger vs fear)? Do related ones point the same way?
+
+What differs from Anthropic's emotions paper (Daniel; notebook 2026-10-21): the input is sound,
+not text; the question is detecting emotion in the input, so the early-to-middle layers matter
+more than the layers that prepare the answer; and like the paper, the claim can only ever be
+"directionally present," with stand-ins such as loudness removed as far as possible.
+
+## 3. The one variable that moves
+
+The emotion the clip was chosen for: anger, fear, happiness, sadness, tenderness (Daniel: five,
+the film set's rated emotions). Equal clips per emotion, random order (Daniel).
+
+## 4. Held fixed, and what can't be
+
+**Held fixed:** prompt "Listen to this audio clip." (Daniel); no answer generated, one forward
+pass per clip, read before any output (Daniel); 16 kHz mono; model weights, bf16, eager attention,
+seed 0. Both models: Qwen2-Audio-7B-Instruct and Audio Flamingo Next (Daniel).
+
+**Can't be held fixed:** everything else about real music (instruments, density, the film).
+Spread across emotions only by the random draw.
+
+**Loudness is kept as recorded** (Daniel: "a dimension we shouldn't eliminate"). It differs by
+emotion (average level of the decoding clips): anger −20.4 dB, happiness −21.6, fear −26.9,
+sadness −28.0, tenderness −28.6. Named risk: **loudness posing as emotion.** Handled by the
+energy-matched checks (section 8) and, if results are inconclusive, by removing the loudness
+direction from the readings and scoring again (ablation; Daniel), before any re-run with
+leveled clips.
+
+## 5. Clips
+
+Film soundtracks, Eerola & Vuoskoski 2011 (OSF p6vkg). Audio kept private, never in this repo.
+Built by `make_film_clips.py`.
+
+- **Decoding: 100 clips**, 20 per emotion, from the larger first set, "mostly clear, but some
+  unclear" (Daniel): 15 where listeners rated the chosen emotion highest, 5 where they rated
+  another emotion highest (split: Claude). The 75 clear clips are also scored on their own.
+- **Measuring part: 25 clips**, the second set's five "high" groups. **No clip is in both**
+  (Claude's proposal; Daniel: use the clips "for whatever helps us bring the most value"). The
+  second set's published links to the first set were confirmed against the audio for all 25.
+- **References (Daniel: silence, a flat tone and neutral clips):**
+  - silence, 15 s;
+  - a flat tone: steady 220 Hz, no rhythm, no loudness change, at the decoding clips' median
+    loudness (pitch and level: Claude);
+  - 15 rated-neutral clips: listeners rated all five emotions 4 or under (of 9) and pleasantness,
+    energy and tension each in the middle (3.5–6.5). Rule: Claude, delegated by Daniel. Caveat: 8
+    of the 15 were picked by the authors as "high energy" clips, though listeners rated their
+    energy middling.
+- **Limitation:** the first set's track list is not published, so two excerpts of the same film
+  cue could sit on both sides of the split.
+
+## 6. What is read (one pass collects all of it)
+
+Each clip is cut into time slices by the model itself; each slice is one audio position. At every
+layer (the ears plus every language layer) we save:
+
+1. **The whole-clip average**, as in the hearing test.
+2. **Moment by moment:** averages over runs of 12 consecutive audio positions (Claude's proposal;
+   about half a second if the model makes ~25 positions per second, to be confirmed from the
+   saved data).
+3. **The takeaway positions:** every position after the audio. In the language layers a position
+   only sees earlier ones, so these are the first positions that have heard the whole clip, up to
+   the point where the model would start answering. For Qwen2-Audio the prompt comes after the
+   audio; for Audio Flamingo the prompt comes before it, so its takeaway positions are only the
+   chat template's closing tokens.
+
+`extract.py --moments-window 12` saves items 2 and 3 (tested on CPU against tiny copies of both
+model classes; not yet run on the real weights).
+
+## 7. How the directions are built and scored
+
+Same method as Anthropic's emotions paper (average many examples, subtract a reference), with the
+reference changed:
+
+- **Each emotion's direction is built separately** (Daniel): that emotion's average reading minus
+  the reference's average reading.
+- **The "this is music" part is removed** (Daniel): it is captured from the neutral clips (their
+  average minus silence's) and removed from every direction, so what remains is specific to the
+  emotion.
+- **Three references, checked against each other** (Daniel): silence, the flat tone, the neutral
+  clips. If they give similar directions, the choice of reference does not drive the result. If
+  they differ, that is reported. **Primary for the pass marks: silence** (Claude's proposal, for
+  Daniel to confirm).
+- **Scoring** (Daniel): every clip is scored on all five directions, each built without that clip;
+  the strongest is the model's answer, correct only if it is the clip's chosen emotion.
+- **Layers:** every layer gets a score. The best layer becomes the primary one, fixed for the
+  measuring part (Claude; Daniel agreed). Picking the best of many layers can win by luck, so the
+  luck level is measured the same way: shuffle the labels, pick the best layer again, repeat.
+
+## 8. Order the results are read in (Claude proposed at Daniel's request)
+
+1. Happiness vs sadness: does anything register at all? Fail → stop.
+2. Happiness vs fear: both high-energy, so loudness cannot carry it.
+3. Tenderness vs sadness: the same check at low energy.
+4. All five together.
+5. When and where: the timeline and layer profile (section 10).
+6. Opposites and clusters: compare every pair of directions.
+
+## 9. Pass marks (Daniel), fixed after approval
+
+- Each two-emotion check: **2/3** (luck = 1/2).
+- All five: **55%** (luck = 1/5). Daniel: "Don't stop the program too early."
+- No pass mark for questions 2 and 3; they are read as descriptions.
+
+## 10. Predictions (Daniel), before any reading
+
+- **Detection:** over half right. "I assume the model understands fear as a concept already." If
+  these models had Claude-like training, at least 70%.
+- **When:** the overall emotional takeaway lands "after climax, after everything has revealed
+  itself," so the takeaway positions should carry the emotion more clearly than the whole-clip
+  average.
+- **Opposites:** happiness and sadness, built separately, point in roughly opposite directions,
+  "the same concept going in opposite directions." Also tested on anger vs fear. Similar
+  directions (close to +1) are clusters.
+
+The measuring part's prediction (near zero, against the silence run) is recorded with that part.
+
+## 11. Interpretation key
+
+- **Sound check:** if silence sits no farther from the clips than they sit from each other, the
+  sound is not registering; stop.
+- **Detection:**
+  - Step 1 fails → no emotion signal found; stop.
+  - Step 1 passes, steps 2 and 3 fail → loudness posing as emotion. That is still a finding.
+  - Steps 2 and 3 pass → something beyond energy; step 4 shows how far.
+  - In step 4, mistakes inside an energy group (fear called anger, sadness called tenderness)
+    point to energy; correct picks inside a group point past it.
+- **Blur (Daniel):** averaging blurred the signal if every clip's whole-clip reading comes out
+  "grayscale" (two or three emotions weakly, no clear primary) while the moment-by-moment or
+  takeaway readings show clear ones. If both are grayscale, there is no signal to blur.
+- **Opposites:** the comparison score runs from −1 (exactly opposite) through 0 (unrelated) to +1
+  (same direction). Clearly below 0 supports the opposites prediction. Two traps are named in
+  advance: subtracting the other emotions would push directions apart by construction (avoided by
+  building against a reference), and a silence reference would pull them together because all
+  music shares "this is music" (handled by removing that part).
+
+## 12. Visual
+
+A timeline for each clip in the style of the emotions paper's highlighted text: one row per
+emotion, each time slice shaded pale to strong orange by how active that direction is, with the
+waveform underneath (Daniel). Built into the Scratch Paper Viewer. It stays on the laptop: the
+film audio is private, so this version cannot be hosted publicly.
+
+## 13. Definition-gate tally (draft)
+
+**Daniel:** the detection question, the when-and-where question, the opposites question,
+differences from the paper, five emotions, music only, prompt, no generation, both models, obvious
+clips first, target-match scoring, equal counts in random order, 20 per emotion mostly clear,
+loudness kept with ablation as the follow-up, two clean parts, happiness vs sadness first, inside
+readout as primary, directions built separately, music part removed, three references compared,
+the blur rule, the timeline visual, 2/3, 55%, three predictions = 27.
+
+**Claude:** clip split, order of the remaining steps, primary layer chosen on the decoding clips,
+the loudness check by energy group, the 15/5 clear split, the neutral-clip rule (delegated), flat
+tone pitch and level, window size, silence as primary reference = 9.
+
+Daniel above half.
+
+## Open for Daniel at approval
+
+- Silence as the primary reference for the pass marks?
+- Window size of 12 positions (about half a second)?

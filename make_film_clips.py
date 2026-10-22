@@ -13,7 +13,8 @@ Also checks every main clip's `link` against the audio (loudness-envelope correl
 measures each clip's loudness from the file, so "loudness posing as emotion" can be checked.
 
 Writes clips/film/decoding/clips.csv and clips/film/main/clips.csv
-(clip_id,path,label,source,recording + ratings + rms_db), each with one silence row.
+(clip_id,path,label,source,recording + ratings + rms_db). Both end with a silence row; the decoding
+list also carries the other references: a flat tone and the rated-neutral clips (label "neutral").
 
 Usage: python make_film_clips.py [--seed 0]
 """
@@ -120,21 +121,43 @@ def main() -> None:
     sil = {"clip_id": "silence", "path": str(silence), "label": "silence", "source": "silence",
            "recording": "silence"}
 
+    # References for building the emotion directions (Daniel 2026-10-21: silence, a flat tone and
+    # neutral clips, checked against each other). Flat tone: steady 220 Hz sine, no rhythm, no
+    # loudness change, 15 s, at the decoding clips' median loudness (pitch and level: Claude).
+    # Neutral clips (Claude's rule, delegated): listeners rated all five emotions <= 4 of 9 and
+    # pleasantness, energy and tension each 3.5-6.5; never a decoding or main clip.
+    def is_neutral(r):
+        mid = all(3.5 <= float(r[k]) <= 6.5 for k in ("valence", "energy", "tension"))
+        return mid and max(float(r[e]) for e in EMOTIONS) <= 4.0
+    used = {r["number"].zfill(3) for r in dec} | main_links
+    neutral = [r for r in s1 if r["number"].zfill(3) not in used and is_neutral(r)]
+
+    dec_rows = [row("set1", r["number"].zfill(3), r["TARGET"].lower(), r,
+                    RAW / "Set1" / f"{r['number'].zfill(3)}.mp3") for r in dec]
+    neu_rows = [row("set1", r["number"].zfill(3), "neutral", r,
+                    RAW / "Set1" / f"{r['number'].zfill(3)}.mp3") for r in neutral]
+    level = 10 ** (np.median([r["rms_db"] for r in dec_rows]) / 20)
+    t = np.arange(SR * 15) / SR
+    tone_path = OUT / "flat_tone.wav"
+    sf.write(tone_path, (level * np.sqrt(2) * np.sin(2 * np.pi * 220 * t)).astype(np.float32), SR)
+    tone = {"clip_id": "flat_tone", "path": str(tone_path), "label": "flat_tone", "source": "flat_tone",
+            "recording": "flat_tone", "rms_db": round(rms_db(load(tone_path)), 2), "seconds": 15.0}
+
     groups = {
-        "decoding": [row("set1", r["number"].zfill(3), r["TARGET"].lower(), r,
-                         RAW / "Set1" / f"{r['number'].zfill(3)}.mp3") for r in dec],
+        "decoding": dec_rows,
         "main": [row("set2", r["Number"].zfill(3), r["TARGET"].lower().removesuffix("_high"), r,
                      RAW / "set2" / f"{r['Number'].zfill(3)}.mp3") for r in main_rows],
     }
     for name, rows in groups.items():
         d = OUT / name
         d.mkdir(parents=True, exist_ok=True)
-        cols = list(rows[0].keys())
+        cols = list(rows[0].keys())  # reference rows fill the columns they have
         with open(d / "clips.csv", "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=cols, restval="")
             w.writeheader()
-            w.writerows(rows + [sil])
-        print(f"\n{name}: {len(rows)} clips + 1 silence -> {d / 'clips.csv'}")
+            refs = [sil] + ([tone] + neu_rows if name == "decoding" else [])
+            w.writerows(rows + refs)
+        print(f"\n{name}: {len(rows)} clips + {len(refs)} reference rows -> {d / 'clips.csv'}")
         print(f"  {'emotion':8} {'n':>3} {'own rating':>10} {'energy':>7} {'valence':>8} {'loudness dB':>12}")
         for e in EMOTIONS:
             g = [r for r in rows if r["label"] == e]

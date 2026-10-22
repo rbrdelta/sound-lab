@@ -108,10 +108,18 @@ def _first_tensor(output):
     return output
 
 
-def read_clip(model, batch):
+def read_clip(model, batch, window: int | None = None):
     """Single forward pass; returns (encoder_vec [d_enc], lm_vecs [n_layers, d_lm]) in float32.
 
     batch: dict of tensors already on the model's device, for ONE clip (batch size 1).
+
+    window: if set, also return a third item, the moment-by-moment readings from the same pass:
+      enc_windows [n_win, d_enc] and lm_windows [n_win, n_layers, d_lm]: means over consecutive
+        runs of `window` audio tokens (position = time; the last run may be shorter);
+      lm_tail [n_tail, n_layers, d_lm]: every position AFTER the last audio token, unpooled.
+        In the language layers a position only sees earlier ones, so these have heard the whole
+        clip (the "takeaway" positions, up to the point where the model would start answering);
+      tail_ids [n_tail]: the token ids at those positions.
     """
     import torch
 
@@ -161,7 +169,22 @@ def read_clip(model, batch):
         if h.shape[1] != input_ids.shape[1]:
             raise RuntimeError("hidden-state length != input length (legacy un-expanded audio token path?)")
         lm_vecs.append(h[0, audio_pos].mean(0))
-    return enc_vec.numpy(), torch.stack(lm_vecs).numpy()
+    if window is None:
+        return enc_vec.numpy(), torch.stack(lm_vecs).numpy()
+
+    idx = torch.nonzero(audio_pos).flatten()
+    if int(idx[-1] - idx[0]) + 1 != n_audio_tokens:
+        raise RuntimeError("audio tokens are not one contiguous run; time order would be ambiguous")
+    hs = torch.stack([h[0] for h in captured["layers"]], dim=1)  # [seq, n_layers, d]
+    starts = range(0, n_audio_tokens, window)
+    moments = {
+        "enc_windows": torch.stack([valid[a:a + window].mean(0) for a in starts]).numpy(),
+        "lm_windows": torch.stack([hs[idx[a:a + window]].mean(0) for a in starts]).numpy(),
+        "lm_tail": hs[int(idx[-1]) + 1:].numpy(),
+        "tail_ids": input_ids[0, int(idx[-1]) + 1:].cpu().numpy(),
+        "n_audio_tokens": n_audio_tokens,
+    }
+    return enc_vec.numpy(), torch.stack(lm_vecs).numpy(), moments
 
 
 # ---------------------------------------------------------------------------------------------
@@ -245,6 +268,9 @@ def main(argv=None):
     p.add_argument("--dtype", default="bf16", choices=["bf16", "fp16", "fp32"])
     p.add_argument("--attn", default="eager", help="attention kernel; eager is the safest for determinism")
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--moments-window", type=int, default=0,
+                   help="if > 0, also save moment-by-moment readings: means over runs of this many audio "
+                        "tokens, plus every position after the audio (<out>.moments.npz, float16)")
     p.add_argument("--no-repeat-check", action="store_true",
                    help="skip re-reading the first clip to confirm byte-identical output")
     args = p.parse_args(argv)
@@ -257,24 +283,42 @@ def main(argv=None):
     processor, model = load_model(args.model, args.dtype, args.attn)
     _, layers, _ = find_parts(model)
 
-    enc_all, lm_all = [], []
+    window = args.moments_window or None
+    enc_all, lm_all, mom_all = [], [], []
     for i, r in enumerate(rows):
         batch = build_inputs(processor, model, args.model, r["path"], args.prompt)
-        enc, lm = read_clip(model, batch)
-        enc_all.append(enc)
-        lm_all.append(lm)
+        got = read_clip(model, batch, window)
+        enc_all.append(got[0])
+        lm_all.append(got[1])
+        if window:
+            import librosa
+            got[2]["seconds"] = float(librosa.get_duration(path=r["path"]))
+            mom_all.append(got[2])
         print(f"[{i + 1}/{len(rows)}] {r['clip_id']}  audio tokens read", flush=True)
 
     repeat_identical = None
     if not args.no_repeat_check and rows:
         batch = build_inputs(processor, model, args.model, rows[0]["path"], args.prompt)
-        enc2, lm2 = read_clip(model, batch)
+        enc2, lm2 = read_clip(model, batch)[:2]
         repeat_identical = bool(np.array_equal(enc2, enc_all[0]) and np.array_equal(lm2, lm_all[0]))
         print(f"repeat check (first clip read twice, identical?): {repeat_identical}")
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(out.with_suffix(".npz"), encoder=np.stack(enc_all), lm=np.stack(lm_all))
+    if window:
+        # Clips differ in length, so windows and tail positions are concatenated across clips with
+        # an index saying which clip each row belongs to.
+        cat = lambda k: np.concatenate([m[k] for m in mom_all])
+        rows_of = lambda k: np.concatenate([np.full(len(m[k]), c) for c, m in enumerate(mom_all)])
+        np.savez_compressed(out.with_suffix(".moments.npz"),
+                            enc_windows=cat("enc_windows").astype(np.float16),
+                            lm_windows=cat("lm_windows").astype(np.float16),
+                            window_clip=rows_of("lm_windows"),
+                            lm_tail=cat("lm_tail").astype(np.float16), tail_ids=cat("tail_ids"),
+                            tail_clip=rows_of("lm_tail"),
+                            n_audio_tokens=np.array([m["n_audio_tokens"] for m in mom_all]),
+                            seconds=np.array([m["seconds"] for m in mom_all]))
     manifest = {
         "model": args.model,
         "transformers_version": transformers.__version__,
@@ -285,6 +329,7 @@ def main(argv=None):
         "prompt": args.prompt,
         "pooling": "mean over audio-token positions; encoder: mean over valid (non-padding) frames",
         "read_point": "single forward pass, no generation, before any output token",
+        "moments_window_tokens": window,
         "n_lm_layers": len(layers),
         "layers": ["encoder"] + [f"lm_{i}" for i in range(len(layers))],
         "repeat_check_identical": repeat_identical,

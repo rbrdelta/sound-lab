@@ -94,3 +94,38 @@ def test_refuses_when_no_audio_tokens():
     batch, _ = make_batch(mask_key, token_id=11)
     with pytest.raises(Exception):
         extract.read_clip(model, batch)
+
+
+@pytest.mark.parametrize("builder", [tiny_qwen, tiny_flamingo], ids=["qwen2-audio", "music-flamingo"])
+def test_moments_match_hidden_states_and_average(builder):
+    extract.set_determinism(0)
+    model, mask_key = builder()
+    bos = getattr(model.config, "audio_bos_token_id", None)
+    eos = getattr(model.config, "audio_eos_token_id", None)
+    batch, start = make_batch(mask_key, model.config.audio_token_id, bos, eos)
+    W = 12
+
+    enc, lm, m = extract.read_clip(model, batch, window=W)
+    n_layers = model.config.text_config.num_hidden_layers
+    n_win = -(-N_AUDIO_TOK // W)
+    assert m["lm_windows"].shape == (n_win, n_layers, TEXT["hidden_size"])
+    assert m["enc_windows"].shape[0] == n_win
+    n_tail = batch["input_ids"].shape[1] - (start + N_AUDIO_TOK)
+    assert m["lm_tail"].shape == (n_tail, n_layers, TEXT["hidden_size"])
+    assert m["n_audio_tokens"] == N_AUDIO_TOK
+
+    with torch.inference_mode():
+        out = model(**batch, use_cache=False, output_hidden_states=True)
+    for i in range(n_layers - 1):  # last entry may have the final norm applied; skip it
+        hs = out.hidden_states[i + 1][0].float()
+        first = hs[start:start + W].mean(0).numpy()
+        np.testing.assert_allclose(m["lm_windows"][0, i], first, rtol=1e-5, atol=1e-6)
+        np.testing.assert_allclose(m["lm_tail"][:, i], hs[start + N_AUDIO_TOK:].numpy(), rtol=1e-5, atol=1e-6)
+
+    # Windows weighted by their size give back the whole-clip average from the same pass.
+    sizes = np.array([min(W, N_AUDIO_TOK - a) for a in range(0, N_AUDIO_TOK, W)], dtype=np.float64)
+    back = (m["lm_windows"] * sizes[:, None, None]).sum(0) / sizes.sum()
+    np.testing.assert_allclose(back, lm, rtol=1e-4, atol=1e-5)
+    # Asking for moments does not change the whole-clip reading.
+    enc2, lm2 = extract.read_clip(model, batch)
+    assert np.array_equal(enc, enc2) and np.array_equal(lm, lm2)
