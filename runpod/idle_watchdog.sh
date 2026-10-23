@@ -2,7 +2,7 @@
 # Stops this Runpod pod after IDLE_MINUTES consecutive minutes with GPU utilisation at or below
 # IDLE_UTIL percent. Started by bootstrap.sh; safe to run by hand:
 #   IDLE_MINUTES=20 nohup bash runpod/idle_watchdog.sh > logs/watchdog.log 2>&1 &
-# To pause it for a long CPU-only step: touch /tmp/watchdog.hold (remove to resume).
+# To pause it for a long CPU-only step: touch /tmp/watchdog.hold (remove to resume; HOLD_FILE moves it).
 #
 # UNVERIFIED (no pod yet): that `runpodctl` is present on the pod and that RUNPOD_POD_ID and an
 # API key are injected into the pod environment. If `runpodctl stop pod` fails, the fallback
@@ -14,6 +14,7 @@ IDLE_MINUTES="${IDLE_MINUTES:-20}"
 IDLE_UTIL="${IDLE_UTIL:-5}"           # percent; model loading from disk can sit near 0, see below
 INTERVAL="${INTERVAL:-60}"            # seconds between checks
 GRACE_MINUTES="${GRACE_MINUTES:-15}"  # no shutdown in the first N minutes after start
+HOLD_FILE="${HOLD_FILE:-/tmp/watchdog.hold}"
 
 log() { echo "$(date -u +%FT%TZ) $*"; }
 
@@ -40,7 +41,7 @@ idle=0
 log "watchdog: stop after ${IDLE_MINUTES} idle min (util <= ${IDLE_UTIL}%), grace ${GRACE_MINUTES} min"
 while true; do
   sleep "$INTERVAL"
-  if [[ -e /tmp/watchdog.hold ]]; then idle=0; continue; fi
+  if [[ -e "$HOLD_FILE" ]]; then idle=0; continue; fi
   if busy; then
     idle=0
   else

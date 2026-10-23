@@ -65,6 +65,41 @@ def same_excerpt(a: np.ndarray, b: np.ndarray) -> float:
     return best
 
 
+def select_main(s2: list[dict]) -> list[dict]:
+    """The main-experiment clips: Set 2's five *_HIGH groups (one per emotion)."""
+    return [r for r in s2 if r["TARGET"].lower().removesuffix("_high") in EMOTIONS
+            and r["TARGET"].endswith("_HIGH")]
+
+
+def clear(r: dict) -> bool:
+    """Clear = listeners rated the clip's chosen emotion highest of the five."""
+    return max(EMOTIONS, key=lambda k: float(r[k])) == r["TARGET"].lower()
+
+
+def pick_decoding(s1: list[dict], main_links: set, n_clear: int, n_unclear: int, seed: int):
+    """Decoding clips: per emotion, n_clear clear + n_unclear unclear Set 1 clips drawn at random,
+    never a clip that is the same excerpt as a main clip; then shuffled. Returns (clips, pool)."""
+    pool = {e: [r for r in s1 if r["TARGET"].lower() == e and r["number"].zfill(3) not in main_links]
+            for e in EMOTIONS}
+    # Daniel 2026-10-21: 20 per emotion, "mostly clear, but some unclear". Clear = listeners rated
+    # the chosen emotion highest. 15 clear + 5 unclear per emotion (split: Claude).
+    rng = random.Random(seed)
+    dec = []
+    for e in EMOTIONS:
+        ranked = sorted(pool[e], key=lambda r: r["number"])
+        dec += rng.sample([r for r in ranked if clear(r)], n_clear)
+        dec += rng.sample([r for r in ranked if not clear(r)], n_unclear)
+    rng.shuffle(dec)
+    return dec, pool
+
+
+def is_neutral(r: dict) -> bool:
+    """Neutral reference clips (Claude's rule, delegated): listeners rated all five emotions <= 4 of 9
+    and pleasantness, energy and tension each 3.5-6.5. The caller also excludes decoding/main clips."""
+    mid = all(3.5 <= float(r[k]) <= 6.5 for k in ("valence", "energy", "tension"))
+    return mid and max(float(r[e]) for e in EMOTIONS) <= 4.0
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", type=int, default=0)
@@ -75,8 +110,7 @@ def main() -> None:
     s1 = list(csv.DictReader(open(RAW / "mean_ratings_set1.csv", encoding="utf-8-sig")))
     s2 = list(csv.DictReader(open(RAW / "mean_ratings_set2.csv", encoding="utf-8-sig")))
 
-    main_rows = [r for r in s2 if r["TARGET"].lower().removesuffix("_high") in EMOTIONS
-                 and r["TARGET"].endswith("_HIGH")]
+    main_rows = select_main(s2)
     assert len(main_rows) == 25, len(main_rows)
     main_links = {r["link"].zfill(3) for r in main_rows}
 
@@ -91,19 +125,7 @@ def main() -> None:
             print(f"  WARN set2 {r['Number']} vs set1 {r['link']}: {c:.3f}")
     print(f"  lowest of 25: {worst:.3f}")
 
-    pool = {e: [r for r in s1 if r["TARGET"].lower() == e and r["number"].zfill(3) not in main_links]
-            for e in EMOTIONS}
-    # Daniel 2026-10-21: 20 per emotion, "mostly clear, but some unclear". Clear = listeners rated
-    # the chosen emotion highest. 15 clear + 5 unclear per emotion (split: Claude).
-    def clear(r):
-        return max(EMOTIONS, key=lambda k: float(r[k])) == r["TARGET"].lower()
-    rng = random.Random(args.seed)
-    dec = []
-    for e in EMOTIONS:
-        ranked = sorted(pool[e], key=lambda r: r["number"])
-        dec += rng.sample([r for r in ranked if clear(r)], args.clear)
-        dec += rng.sample([r for r in ranked if not clear(r)], args.unclear)
-    rng.shuffle(dec)
+    dec, pool = pick_decoding(s1, main_links, args.clear, args.unclear, args.seed)
 
     def row(set_name, num, label, ratings, path):
         x = load(path)
@@ -124,11 +146,6 @@ def main() -> None:
     # References for building the emotion directions (Daniel 2026-10-21: silence, a flat tone and
     # neutral clips, checked against each other). Flat tone: steady 220 Hz sine, no rhythm, no
     # loudness change, 15 s, at the decoding clips' median loudness (pitch and level: Claude).
-    # Neutral clips (Claude's rule, delegated): listeners rated all five emotions <= 4 of 9 and
-    # pleasantness, energy and tension each 3.5-6.5; never a decoding or main clip.
-    def is_neutral(r):
-        mid = all(3.5 <= float(r[k]) <= 6.5 for k in ("valence", "energy", "tension"))
-        return mid and max(float(r[e]) for e in EMOTIONS) <= 4.0
     used = {r["number"].zfill(3) for r in dec} | main_links
     neutral = [r for r in s1 if r["number"].zfill(3) not in used and is_neutral(r)]
 

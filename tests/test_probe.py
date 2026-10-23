@@ -123,3 +123,59 @@ def test_determinism_same_input_same_output():
     out2 = probe.run({"l": X.copy()}, labels, recs, srcs, "fear", "calm", cross_sources=["b"], seed=7)
     assert repr(out1) == repr(out2)
     assert probe.report(*out1) == probe.report(*out2)
+
+
+def test_split_with_labels_puts_both_classes_in_the_test_set():
+    groups = np.array([f"f{i}" for i in range(10)] + [f"c{i}" for i in range(10)])
+    labels = np.array(["fear"] * 10 + ["calm"] * 10)
+    for seed in range(5):
+        test = probe.split_by_group(groups, 0.3, seed=seed, labels=labels)
+        assert set(labels[test]) == {"fear", "calm"}
+        assert test.sum() == 6  # 3 of 10 recordings from each class
+
+
+def test_run_refuses_when_training_lacks_a_label():
+    X = np.zeros((4, 2))
+    labels = ["fear", "fear", "calm", "calm"]
+    recs = ["a", "b", "c", "d"]
+    srcs = ["s1", "s1", "s2", "s2"]  # holding out s2 leaves no calm clip to train on
+    with pytest.raises(ValueError, match="lacks one of the two labels"):
+        probe.run({"l": X}, labels, recs, srcs, "fear", "calm", cross_sources=["s2"])
+
+
+def test_run_ignores_clips_with_other_labels():
+    rng = np.random.default_rng(4)
+    X = rng.normal(0, 1, (30, 4))
+    labels = ["fear"] * 12 + ["calm"] * 12 + ["silence"] * 6
+    recs = [f"r{i}" for i in range(30)]
+    _, info = probe.run({"l": X}, labels, recs, ["s"] * 30, "fear", "calm", seed=0)
+    assert info["n_train"] + info["n_test"] == 24
+    assert not any(r in info["train_recordings"] + info["test_recordings"] for r in recs[24:])
+
+
+def test_load_run_names_layers_and_reads_clip_columns(write_run):
+    enc = np.zeros((3, 5))
+    lm = np.arange(3 * 4 * 2, dtype=float).reshape(3, 4, 2)
+    clips = [{"label": "fear", "source": "A", "recording": "r0"}, {"label": "calm", "source": "A", "recording": "r1"},
+             {"label": "silence", "source": "silence", "recording": "silence"}]
+    feats, labels, recs, srcs, man = probe.load_run(write_run(enc, lm, clips))
+    assert list(feats) == ["encoder", "lm_0", "lm_1", "lm_2", "lm_3"]
+    assert feats["lm_2"].tolist() == lm[:, 2, :].tolist()
+    assert labels == ["fear", "calm", "silence"] and recs == ["r0", "r1", "silence"] and srcs == ["A", "A", "silence"]
+    assert man["model"] == "test-model"
+
+
+def test_cli_writes_per_layer_json(write_run, tmp_path, capsys):
+    import json
+    rng = np.random.default_rng(6)
+    y = np.repeat([True, False], 20)
+    enc = rng.normal(0, 1, (40, 6))
+    enc[y, 0] += 4.0
+    clips = [{"label": "fear" if v else "calm", "source": "s", "recording": f"r{i}"} for i, v in enumerate(y)]
+    prefix = write_run(enc, rng.normal(0, 1, (40, 2, 6)), clips)
+    out = tmp_path / "out.json"
+    probe.main([prefix, "--positive", "fear", "--negative", "calm", "--json", str(out)])
+    got = json.loads(out.read_text())
+    assert [l["layer"] for l in got["layers"]] == ["encoder", "lm_0", "lm_1"]
+    assert got["layers"][0]["heldout_verdict"] == "pass"
+    assert "Pass mark" in capsys.readouterr().out

@@ -129,3 +129,65 @@ def test_moments_match_hidden_states_and_average(builder):
     # Asking for moments does not change the whole-clip reading.
     enc2, lm2 = extract.read_clip(model, batch)
     assert np.array_equal(enc, enc2) and np.array_equal(lm, lm2)
+
+
+def test_refuses_when_encoder_frames_and_audio_tokens_disagree(monkeypatch):
+    # The models check this too, so simulate our own pooling-window arithmetic going wrong.
+    model, mask_key = tiny_qwen()
+    batch, _ = make_batch(mask_key, model.config.audio_token_id)
+    monkeypatch.setattr(extract, "encoder_valid_lengths", lambda *a: torch.tensor([N_AUDIO_TOK - 1]))
+    with pytest.raises(RuntimeError, match="encoder valid frames"):
+        extract.read_clip(model, batch)
+
+
+def test_moments_refuse_audio_tokens_that_are_not_one_run():
+    model, mask_key = tiny_qwen()
+    tok = model.config.audio_token_id
+    batch, start = make_batch(mask_key, tok)
+    ids = batch["input_ids"][0].tolist()
+    ids = ids[:start + 100] + [5] + ids[start + 100:]  # a text token in the middle of the audio
+    batch["input_ids"] = torch.tensor([ids])
+    batch["attention_mask"] = torch.ones_like(batch["input_ids"])
+    with pytest.raises(RuntimeError, match="not one contiguous run"):
+        extract.read_clip(model, batch, window=12)
+
+
+def test_find_parts_refuses_an_unrecognised_model():
+    with pytest.raises(RuntimeError, match="structure not recognised"):
+        extract.find_parts(torch.nn.Linear(2, 2))
+
+
+def test_clip_list_must_have_the_five_columns(tmp_path):
+    p = tmp_path / "clips.csv"
+    p.write_text("clip_id,path,label,source\na,a.wav,fear,s\n")
+    with pytest.raises(SystemExit, match="recording"):
+        extract.read_clip_list(str(p))
+
+
+def test_main_writes_readings_manifest_and_moments(tmp_path, monkeypatch):
+    """The whole extract.py run with the real-weights steps swapped for a tiny model."""
+    import json
+    import sys
+    import types
+    model, mask_key = tiny_qwen()
+    batch, _ = make_batch(mask_key, model.config.audio_token_id)
+    monkeypatch.setattr(extract, "load_model", lambda *a: (None, model))
+    monkeypatch.setattr(extract, "build_inputs", lambda *a: dict(batch))
+    monkeypatch.setitem(sys.modules, "librosa", types.SimpleNamespace(get_duration=lambda path: 2.5))
+    clips = tmp_path / "clips.csv"
+    clips.write_text("clip_id,path,label,source,recording\na,a.wav,fear,s1,ra\nb,b.wav,calm,s1,rb\n")
+    out = tmp_path / "runs" / "t"
+    extract.main(["--clips", str(clips), "--out", str(out), "--moments-window", "100"])
+
+    data = np.load(out.with_suffix(".npz"))
+    n_layers, d = TEXT["num_hidden_layers"], TEXT["hidden_size"]
+    assert data["lm"].shape == (2, n_layers, d) and data["encoder"].shape[0] == 2
+    man = json.loads(out.with_suffix(".manifest.json").read_text())
+    assert man["repeat_check_identical"] is True
+    assert man["layers"] == ["encoder"] + [f"lm_{i}" for i in range(n_layers)]
+    assert [c["recording"] for c in man["clips"]] == ["ra", "rb"] and man["moments_window_tokens"] == 100
+    assert man["prompt"] == extract.DEFAULT_PROMPT and man["seed"] == 0 and man["dtype"] == "bf16"
+    m = np.load(out.with_name("t.moments.npz"))
+    assert m["lm_windows"].dtype == np.float16 and m["window_clip"].tolist() == [0, 0, 0, 1, 1, 1]  # 250 tokens / 100
+    assert m["n_audio_tokens"].tolist() == [N_AUDIO_TOK] * 2 and m["seconds"].tolist() == [2.5, 2.5]
+    assert len(m["tail_clip"]) == len(m["tail_ids"]) == m["lm_tail"].shape[0]
