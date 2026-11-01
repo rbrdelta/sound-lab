@@ -1,4 +1,4 @@
-# Real music, decoding step — registration (DRAFT 3, not yet approved)
+# Real music, decoding step — registration (approved 2026-11-01)
 
 Rewritten 2026-10-21 at the end of the design talk. Every design answer from Daniel is on file
 verbatim in the private notebook (`shadow-ledger/NEXT-SESSION.md`, from "Real-music test —
@@ -230,4 +230,5 @@ Daniel 31, Claude 11. Daniel above half.
 
 ## Approval
 
-Pending Daniel's ok on draft 3.
+Approved by Daniel, 2026-11-01: "ok, good to go!" Pass marks, predictions and the
+interpretation key are fixed from this commit. Nothing had been run before it.
