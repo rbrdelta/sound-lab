@@ -112,6 +112,8 @@ def test_moments_match_hidden_states_and_average(builder):
     assert m["enc_windows"].shape[0] == n_win
     n_tail = batch["input_ids"].shape[1] - (start + N_AUDIO_TOK)
     assert m["lm_tail"].shape == (n_tail, n_layers, TEXT["hidden_size"])
+    assert m["lm_head"].shape == (start, n_layers, TEXT["hidden_size"])
+    assert m["head_ids"].tolist() == batch["input_ids"][0, :start].tolist()
     assert m["n_audio_tokens"] == N_AUDIO_TOK
 
     with torch.inference_mode():
@@ -121,6 +123,7 @@ def test_moments_match_hidden_states_and_average(builder):
         first = hs[start:start + W].mean(0).numpy()
         np.testing.assert_allclose(m["lm_windows"][0, i], first, rtol=1e-5, atol=1e-6)
         np.testing.assert_allclose(m["lm_tail"][:, i], hs[start + N_AUDIO_TOK:].numpy(), rtol=1e-5, atol=1e-6)
+        np.testing.assert_allclose(m["lm_head"][:, i], hs[:start].numpy(), rtol=1e-5, atol=1e-6)
 
     # Windows weighted by their size give back the whole-clip average from the same pass.
     sizes = np.array([min(W, N_AUDIO_TOK - a) for a in range(0, N_AUDIO_TOK, W)], dtype=np.float64)
@@ -191,3 +194,28 @@ def test_main_writes_readings_manifest_and_moments(tmp_path, monkeypatch):
     assert m["lm_windows"].dtype == np.float16 and m["window_clip"].tolist() == [0, 0, 0, 1, 1, 1]  # 250 tokens / 100
     assert m["n_audio_tokens"].tolist() == [N_AUDIO_TOK] * 2 and m["seconds"].tolist() == [2.5, 2.5]
     assert len(m["tail_clip"]) == len(m["tail_ids"]) == m["lm_tail"].shape[0]
+
+
+def test_main_sets_the_window_in_seconds_from_the_measured_token_rate(tmp_path, monkeypatch):
+    """--moments-seconds: the window is measured, not assumed, and recorded in the manifest."""
+    import json
+    import sys
+    import types
+    model, mask_key = tiny_qwen()
+    batch, start = make_batch(mask_key, model.config.audio_token_id)
+    monkeypatch.setattr(extract, "load_model", lambda *a: (None, model))
+    monkeypatch.setattr(extract, "build_inputs", lambda *a: dict(batch))
+    # 250 audio tokens over 2.5 s = 100 tokens per second, so 0.5 s = 50 tokens = 5 windows per clip.
+    monkeypatch.setitem(sys.modules, "librosa", types.SimpleNamespace(get_duration=lambda path: 2.5))
+    clips = tmp_path / "clips.csv"
+    clips.write_text("clip_id,path,label,source,recording\na,a.wav,fear,s1,ra\nb,b.wav,calm,s1,rb\n")
+    out = tmp_path / "runs" / "s"
+    extract.main(["--clips", str(clips), "--out", str(out), "--moments-seconds", "0.5"])
+
+    man = json.loads(out.with_suffix(".manifest.json").read_text())
+    assert man["audio_tokens_per_second"] == pytest.approx(100.0)
+    assert man["moments_window_tokens"] == 50 and man["moments_seconds_requested"] == 0.5
+    m = np.load(out.with_name("s.moments.npz"))
+    assert m["window_clip"].tolist() == [0] * 5 + [1] * 5
+    assert m["head_clip"].tolist() == [0] * start + [1] * start
+    assert len(m["head_ids"]) == m["lm_head"].shape[0] == 2 * start

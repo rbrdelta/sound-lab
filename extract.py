@@ -120,6 +120,11 @@ def read_clip(model, batch, window: int | None = None):
         In the language layers a position only sees earlier ones, so these have heard the whole
         clip (the "takeaway" positions, up to the point where the model would start answering);
       tail_ids [n_tail]: the token ids at those positions.
+      lm_head [n_head, n_layers, d_lm]: every position BEFORE the first audio token, unpooled.
+        These have heard no audio: pure word positions, kept so word rows can later be compared
+        with sound rows in the same pass (Daniel's encoding question, 2026-11-01). Not analysed
+        in the decoding step.
+      head_ids [n_head]: the token ids at those positions.
     """
     import torch
 
@@ -182,6 +187,8 @@ def read_clip(model, batch, window: int | None = None):
         "lm_windows": torch.stack([hs[idx[a:a + window]].mean(0) for a in starts]).numpy(),
         "lm_tail": hs[int(idx[-1]) + 1:].numpy(),
         "tail_ids": input_ids[0, int(idx[-1]) + 1:].cpu().numpy(),
+        "lm_head": hs[:int(idx[0])].numpy(),
+        "head_ids": input_ids[0, :int(idx[0])].cpu().numpy(),
         "n_audio_tokens": n_audio_tokens,
     }
     return enc_vec.numpy(), torch.stack(lm_vecs).numpy(), moments
@@ -270,7 +277,12 @@ def main(argv=None):
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--moments-window", type=int, default=0,
                    help="if > 0, also save moment-by-moment readings: means over runs of this many audio "
-                        "tokens, plus every position after the audio (<out>.moments.npz, float16)")
+                        "tokens, plus every position before and after the audio (<out>.moments.npz, float16)")
+    p.add_argument("--moments-seconds", type=float, default=0.0,
+                   help="like --moments-window, but the window is given in seconds: the first clip is "
+                        "read once to measure this model's audio tokens per second, and the window is "
+                        "that many seconds' worth of tokens (rounded, at least 1). Ignored if "
+                        "--moments-window is set.")
     p.add_argument("--no-repeat-check", action="store_true",
                    help="skip re-reading the first clip to confirm byte-identical output")
     args = p.parse_args(argv)
@@ -284,6 +296,16 @@ def main(argv=None):
     _, layers, _ = find_parts(model)
 
     window = args.moments_window or None
+    tokens_per_second = None
+    if window is None and args.moments_seconds > 0 and rows:
+        # The token rate is a property of the model, not of a result, so measure it on clip 1.
+        import librosa
+        probe_batch = build_inputs(processor, model, args.model, rows[0]["path"], args.prompt)
+        n_tok = read_clip(model, probe_batch, 1)[2]["n_audio_tokens"]
+        tokens_per_second = n_tok / float(librosa.get_duration(path=rows[0]["path"]))
+        window = max(1, round(args.moments_seconds * tokens_per_second))
+        print(f"audio tokens per second: {tokens_per_second:.2f} -> window {window} tokens "
+              f"(~{window / tokens_per_second:.2f} s)", flush=True)
     enc_all, lm_all, mom_all = [], [], []
     for i, r in enumerate(rows):
         batch = build_inputs(processor, model, args.model, r["path"], args.prompt)
@@ -317,6 +339,8 @@ def main(argv=None):
                             window_clip=rows_of("lm_windows"),
                             lm_tail=cat("lm_tail").astype(np.float16), tail_ids=cat("tail_ids"),
                             tail_clip=rows_of("lm_tail"),
+                            lm_head=cat("lm_head").astype(np.float16), head_ids=cat("head_ids"),
+                            head_clip=rows_of("lm_head"),
                             n_audio_tokens=np.array([m["n_audio_tokens"] for m in mom_all]),
                             seconds=np.array([m["seconds"] for m in mom_all]))
     manifest = {
@@ -330,6 +354,8 @@ def main(argv=None):
         "pooling": "mean over audio-token positions; encoder: mean over valid (non-padding) frames",
         "read_point": "single forward pass, no generation, before any output token",
         "moments_window_tokens": window,
+        "moments_seconds_requested": args.moments_seconds or None,
+        "audio_tokens_per_second": tokens_per_second,
         "n_lm_layers": len(layers),
         "layers": ["encoder"] + [f"lm_{i}" for i in range(len(layers))],
         "repeat_check_identical": repeat_identical,

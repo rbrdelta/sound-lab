@@ -1,9 +1,10 @@
-# Real music, decoding step — registration (DRAFT 2, not yet approved)
+# Real music, decoding step — registration (DRAFT 3, not yet approved)
 
 Rewritten 2026-10-21 at the end of the design talk. Every design answer from Daniel is on file
 verbatim in the private notebook (`shadow-ledger/NEXT-SESSION.md`, from "Real-music test —
-Daniel's first design inputs" onward). Who decided what is marked inline. Becomes the
-registration when Daniel approves it at the start of the next session. Nothing has been run.
+Daniel's first design inputs" onward). Who decided what is marked inline. Draft 3 (2026-11-01) records Daniel's answers to the three open questions and the
+recognition risk; what changed is listed at the end. Becomes the registration when Daniel approves
+it. Nothing has been run.
 
 **Role:** instrumentation. The first of two clean parts (Daniel): **decoding**, then
 **measuring** (the ten-word experiment). Decoding finds the emotion directions that the measuring
@@ -55,6 +56,14 @@ energy-matched checks (section 8) and, if results are inconclusive, by removing 
 direction from the readings and scoring again (ablation; Daniel), before any re-run with
 leveled clips.
 
+Second named risk: **recognition posing as hearing** (Daniel, 2026-11-01). If the model recognizes a
+cue (the film, composer or artist), an emotion reading could come from what it learned about the
+film in text rather than from the sound. The set's own readme calls the excerpts "not that well
+known... although some could be identified by film aficionados." Not tested in this step. **Asking
+the model to name the clip is ruled out: it is leading** (Daniel). The check, run only if emotions
+are captured, is to read which words the model's inside points to for each clip and look for the
+film, composer or artist; how to handle a hit is to be discussed then.
+
 ## 5. Clips
 
 Film soundtracks, Eerola & Vuoskoski 2011 (OSF p6vkg). Audio kept private, never in this repo.
@@ -83,16 +92,21 @@ Each clip is cut into time slices by the model itself; each slice is one audio p
 layer (the ears plus every language layer) we save:
 
 1. **The whole-clip average**, as in the hearing test.
-2. **Moment by moment:** averages over runs of 12 consecutive audio positions (Claude's proposal;
-   about half a second if the model makes ~25 positions per second, to be confirmed from the
-   saved data).
+2. **Moment by moment:** averages over runs of consecutive audio positions covering **about half a
+   second**. The number of positions is measured per model, not assumed (Daniel: "check the
+   positions dynamically"): the first clip is read once to count that model's positions per
+   second, and the window is half a second's worth, rounded. Both numbers are saved with the run.
 3. **The takeaway positions:** every position after the audio. In the language layers a position
    only sees earlier ones, so these are the first positions that have heard the whole clip, up to
    the point where the model would start answering. For Qwen2-Audio the prompt comes after the
    audio; for Audio Flamingo the prompt comes before it, so its takeaway positions are only the
    chat template's closing tokens.
+4. **The word positions before the audio**, unpooled. These have heard no sound, so they are pure
+   word rows from the same pass. Saved for a later check of whether sound rows and word rows sit
+   differently inside the model (Daniel's encoding question); **not analysed in this step**
+   (saving them: Claude).
 
-`extract.py --moments-window 12` saves items 2 and 3 (tested on CPU against tiny copies of both
+`extract.py --moments-seconds 0.5` saves items 2 to 4 (tested on CPU against tiny copies of both
 model classes; not yet run on the real weights).
 
 ## 7. How the directions are built and scored
@@ -102,13 +116,23 @@ reference changed:
 
 - **Each emotion's direction is built separately** (Daniel): that emotion's average reading minus
   the reference's average reading.
-- **The "this is music" part is removed** (Daniel): it is captured from the neutral clips (their
-  average minus silence's) and removed from every direction, so what remains is specific to the
-  emotion.
+- **The "this is music" part is stripped out** (Daniel): it is one arrow, the average of the 15
+  neutral clips minus silence's average (one average: Claude proposed, Daniel chose). From each emotion's direction we
+  remove exactly as much of that arrow as the direction contains, and keep everything else
+  (stripping: Claude; Daniel agreed). Not a straight subtraction of the music arrow: that would
+  make the silence reference identical to the neutral reference, and the comparison of
+  references below could not show a difference. Cost, named in advance: any part of an emotion
+  that genuinely points along "music" is stripped too; a large disagreement between the silence
+  and neutral references is the sign of it.
+- **Difference from the paper:** the paper also stripped rather than subtracted, but it removed
+  several directions (the main ways emotionally neutral text varies, enough to cover half of its
+  variation). We remove one, because directions taken from only 15 clips would mostly describe
+  those clips rather than music in general. (Source: our notes on the paper's "Finding emotion
+  vectors" section, 2026-10-21.)
 - **Three references, checked against each other** (Daniel): silence, the flat tone, the neutral
   clips. If they give similar directions, the choice of reference does not drive the result. If
-  they differ, that is reported. **Primary for the pass marks: silence** (Claude's proposal, for
-  Daniel to confirm).
+  they differ, that is reported. **Primary for the pass marks: silence**, compared against the
+  neutral clips to see whether the result differs (Claude's proposal; Daniel confirmed 2026-11-01).
 - **Scoring** (Daniel): every clip is scored on all five directions, each built without that clip;
   the strongest is the model's answer, correct only if it is the clip's chosen emotion.
 - **Layers:** every layer gets a score. The best layer becomes the primary one, fixed for the
@@ -176,15 +200,29 @@ differences from the paper, five emotions, music only, prompt, no generation, bo
 clips first, target-match scoring, equal counts in random order, 20 per emotion mostly clear,
 loudness kept with ablation as the follow-up, two clean parts, happiness vs sadness first, inside
 readout as primary, directions built separately, music part removed, three references compared,
-the blur rule, the timeline visual, 2/3, 55%, three predictions = 27.
+the blur rule, the timeline visual, 2/3, 55%, three predictions, the recognition risk, its later
+check by inside words rather than asking = 29.
+
+**Both (half each; Claude proposed, Daniel decided):** silence as primary reference, one average
+music arrow rather than several = 2.
 
 **Claude:** clip split, order of the remaining steps, primary layer chosen on the decoding clips,
 the loudness check by energy group, the 15/5 clear split, the neutral-clip rule (delegated), flat
-tone pitch and level, window size, silence as primary reference = 9.
+tone pitch and level, half-second window counted per model, stripping rather than subtracting,
+saving the pre-audio word positions = 10.
 
-Daniel above half.
+Daniel 30, Claude 11. Daniel above half.
 
-## Open for Daniel at approval
+## Changed in draft 3 (2026-11-01, Daniel's answers)
 
-- Silence as the primary reference for the pass marks?
-- Window size of 12 positions (about half a second)?
+- Silence confirmed as the primary reference, compared against the neutral clips (section 7).
+- Window: about half a second, positions counted per model from the first clip (section 6).
+- "Music part removed" made exact: one average arrow from the 15 neutral clips, stripped, not
+  subtracted; difference from the paper stated (section 7).
+- Recognition named as a risk; asking the model ruled out as leading; inside-words check later,
+  only if emotions are captured (section 4).
+- Word positions before the audio saved for a later encoding check, not analysed here (section 6).
+
+## Approval
+
+Pending Daniel's ok on draft 3.
