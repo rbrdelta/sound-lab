@@ -64,6 +64,11 @@ the model to name the clip is ruled out: it is leading** (Daniel). The check, ru
 are captured, is to read which words the model's inside points to for each clip and look for the
 film, composer or artist; how to handle a hit is to be discussed then.
 
+**What a positive result leads to (Daniel, 2026-11-01):** two follow-ups, neither run in this step.
+(1) The recognition check above. (2) A listening check, clip by clip, half a second at a time:
+verify that the emotion readings follow what happens in the sound, as evidence the model actually
+listened. The moment-by-moment readings saved in this step are the data for it.
+
 ## 5. Clips
 
 Film soundtracks, Eerola & Vuoskoski 2011 (OSF p6vkg). Audio kept private, never in this repo.
@@ -201,7 +206,7 @@ clips first, target-match scoring, equal counts in random order, 20 per emotion 
 loudness kept with ablation as the follow-up, two clean parts, happiness vs sadness first, inside
 readout as primary, directions built separately, music part removed, three references compared,
 the blur rule, the timeline visual, 2/3, 55%, three predictions, the recognition risk, its later
-check by inside words rather than asking = 29.
+check by inside words rather than asking, the clip-by-clip listening check as the follow-up = 30.
 
 **Both (half each; Claude proposed, Daniel decided):** silence as primary reference, one average
 music arrow rather than several = 2.
@@ -211,7 +216,7 @@ the loudness check by energy group, the 15/5 clear split, the neutral-clip rule 
 tone pitch and level, half-second window counted per model, stripping rather than subtracting,
 saving the pre-audio word positions = 10.
 
-Daniel 30, Claude 11. Daniel above half.
+Daniel 31, Claude 11. Daniel above half.
 
 ## Changed in draft 3 (2026-11-01, Daniel's answers)
 
@@ -220,7 +225,7 @@ Daniel 30, Claude 11. Daniel above half.
 - "Music part removed" made exact: one average arrow from the 15 neutral clips, stripped, not
   subtracted; difference from the paper stated (section 7).
 - Recognition named as a risk; asking the model ruled out as leading; inside-words check later,
-  only if emotions are captured (section 4).
+  only if emotions are captured; clip-by-clip listening check as the second follow-up (section 4).
 - Word positions before the audio saved for a later encoding check, not analysed here (section 6).
 
 ## Approval
