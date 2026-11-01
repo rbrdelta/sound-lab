@@ -46,6 +46,7 @@ An interactive page showing what happens inside the model for every clip: one ro
 | `extract.py` | Plays each clip through the model in one forward pass with a fixed prompt and no generation. Records the encoder output and every language-model layer, averaged over the audio positions, and checks that a repeated reading is byte-identical. |
 | `hearing_test.py` | Scores a run: a sound-vs-silence check, then leave-one-key-out accuracy per layer against a pass mark. |
 | `probe.py` | The detector: the average of one group minus the average of the other, with the cutoff halfway between. |
+| `score_decoding.py` | Scores the real-music decoding step (`REAL-MUSIC-DECODING-REGISTRATION.md`): one direction per emotion from silence with the shared "music" part stripped, every clip scored without itself, the plan's checks in order, the best layer with a label-shuffle luck level, the three references compared, the sound check, and opposites. Open design choices are listed in the script and written into each result. |
 | `simulate_clips.py` | Estimates how many clips a later experiment needs, given a detector's accuracy. |
 | `viewer/` | Builds the Scratch Paper Viewer: per-layer score plots for every test, plus one clip traced from waveform to readout. The built page is committed as `viewer/scratch-paper-viewer.html` (one self-contained file; download and open it in a browser). |
 | `runpod/` | Pod setup (`bootstrap.sh`) and an idle watchdog that stops the pod. |
