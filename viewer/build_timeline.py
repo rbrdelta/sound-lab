@@ -41,32 +41,60 @@ p { color:var(--muted); margin:0; max-width:72ch }
 svg { width:100%; height:70px; display:block }
 svg path { fill:var(--muted) }
 .axis { display:flex; justify-content:space-between; font:12px ui-monospace,monospace; color:var(--muted) }
+button { font:14px system-ui,sans-serif; padding:4px 10px; border:1px solid var(--rule); border-radius:6px;
+  background:var(--panel); color:var(--ink); cursor:pointer }
+button[aria-pressed=true] { border-color:var(--ink); font-weight:600 }
 #hint { font:13px ui-monospace,monospace; color:var(--muted); min-height:1.5em }
 </style>
 <div class="wrap">
   <h1>__CLIP__</h1>
   <p>__MODEL__, layer __LAYER__. Each square is __WINDOW__ seconds. Stronger orange means that emotion
-  has risen further above its usual level in this clip, net of what all five share at that moment.
-  A ring marks the peak of a wave. Inferred from the model's readings, not proof of anything felt.</p>
+  has risen further above its usual level in this clip. "As read" shows every rise, including small
+  ones in the secondary emotions. "Net of the shared rise" takes out what all five share at that
+  moment, which is what the wave rule uses. The "all five" row shows that shared rise on its own. A
+  ring marks the peak of a wave. Inferred from the model's readings, not proof of anything felt.</p>
+  <div><button id="raw" aria-pressed="true">As read</button>
+  <button id="net" aria-pressed="false">Net of the shared rise</button></div>
   <div class="board" id="board"></div>
   <div id="hint">Point at a square for its numbers.</div>
 </div>
 <script>
 const D = __DATA__;
 const board = document.getElementById('board'), hint = document.getElementById('hint');
-const strongest = Math.max(...D.rises.flat(), 1e-9);
+const cells = [];
+const addRow = (label, id) => {
+  board.insertAdjacentHTML('beforeend', `<div class="name">${label}</div><div class="row" id="${id}"></div>`);
+  return document.getElementById(id);
+};
 D.emotions.forEach((e, k) => {
-  board.insertAdjacentHTML('beforeend', `<div class="name">${e}</div><div class="row" id="r${k}"></div>`);
-  const row = document.getElementById('r' + k);
+  const row = addRow(e, 'r' + k);
   D.rises.forEach((r, t) => {
     const c = document.createElement('div');
     c.className = 'cell' + (D.peaks.some(p => p.emotion === e && p.peak_window === t) ? ' peak' : '');
-    c.style.background = `rgba(var(--heat),${(0.06 + 0.94 * Math.max(r[k], 0) / strongest).toFixed(3)})`;
-    c.onmouseenter = () => hint.textContent =
-      `${e} at ${(t * D.window).toFixed(1)}s: rise ${r[k].toFixed(2)}, score ${D.scores[t][k].toFixed(2)}, bar ${D.bars[k].toFixed(2)}`;
-    row.append(c);
+    c.onmouseenter = () => hint.textContent = `${e} at ${(t * D.window).toFixed(1)}s: rise as read ` +
+      `${D.raw[t][k].toFixed(2)}, net ${r[k].toFixed(2)}, score ${D.scores[t][k].toFixed(2)}, wave bar ${D.bars[k].toFixed(2)}`;
+    row.append(c); cells.push({ c, t, k });
   });
 });
+const sharedRow = addRow('all five', 'shared');
+const sharedCells = D.shared.map((v, t) => {
+  const c = document.createElement('div');
+  c.className = 'cell';
+  c.onmouseenter = () => hint.textContent = `all five at ${(t * D.window).toFixed(1)}s: shared rise ${v.toFixed(2)}`;
+  sharedRow.append(c);
+  return c;
+});
+const heat = (v, most) => `rgba(var(--heat),${(0.06 + 0.94 * Math.max(v, 0) / most).toFixed(3)})`;
+function show(view) {
+  const values = D[view], most = Math.max(...D.raw.flat(), ...D.rises.flat(), 1e-9);
+  cells.forEach(({ c, t, k }) => c.style.background = heat(values[t][k], most));
+  sharedCells.forEach((c, t) => c.style.background = heat(D.shared[t], most));
+  document.getElementById('raw').setAttribute('aria-pressed', view === 'raw');
+  document.getElementById('net').setAttribute('aria-pressed', view === 'rises');
+}
+document.getElementById('raw').onclick = () => show('raw');
+document.getElementById('net').onclick = () => show('rises');
+show('raw');
 const n = D.envelope.length, up = D.envelope.map((v, i) => `${i},${50 - 48 * v}`);
 const down = D.envelope.map((v, i) => `${i},${50 + 48 * v}`).reverse();
 board.insertAdjacentHTML('beforeend', `<div class="name">sound</div>
@@ -91,7 +119,9 @@ def timeline_data(W, wc, X, labels, row, window_seconds, audio) -> dict:
     scores = sd.moment_scores(W, wc, X, labels)
     bars = sd.wave_bars([s for i, s in scores.items() if labels[i] == "neutral"])
     s = scores[row]
+    raw = s - np.median(s, axis=0)
     return {"emotions": list(sd.EMOTIONS), "rises": np.round(sd.rises(s), 3).tolist(),
+            "raw": np.round(raw, 3).tolist(), "shared": np.round(np.median(raw, axis=1), 3).tolist(),
             "scores": np.round(s, 3).tolist(), "bars": np.round(bars, 3).tolist(),
             "peaks": sd.find_waves(s, bars), "window": window_seconds, "envelope": envelope(audio)}
 

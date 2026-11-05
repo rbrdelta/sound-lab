@@ -346,6 +346,8 @@ def test_timeline_page_is_self_contained_and_marks_the_wave(tmp_path):
     audio = np.sin(np.linspace(0, 900, 16000))
     d = bt.timeline_data(W, wc, X, labels, row, 0.48, audio)
     assert len(d["rises"]) == 30 and len(d["rises"][0]) == 5 and len(d["envelope"]) == 600
+    # The page keeps what the wave rule cancels: as-read rises = net rises + the shared rise.
+    np.testing.assert_allclose(np.array(d["raw"]), np.array(d["rises"]) + np.array(d["shared"])[:, None], atol=0.002)
     assert max(d["envelope"]) == 1
     assert "sad" in {w["emotion"] for w in d["peaks"]}
     html = bt.page("clip_1", "m", "lm_1", d)
