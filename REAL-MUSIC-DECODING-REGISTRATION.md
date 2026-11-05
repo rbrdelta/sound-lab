@@ -232,3 +232,42 @@ Daniel 31, Claude 11. Daniel above half.
 
 Approved by Daniel, 2026-11-01: "ok, good to go!" Pass marks, predictions and the
 interpretation key are fixed from this commit. Nothing had been run before it.
+
+## Scoring review (2026-11-05, before any reading was opened)
+
+Daniel reviewed the scoring choices in `score_decoding.py`. No reading had been opened. Sections 1 to
+13 stand as approved except where listed here; each item is also written into every result file.
+
+**Changed**
+- **Sound check (section 11).** Daniel: silence must fall outside the spread of the clips. Along the
+  line from silence to the clips, at least 95% of clips must lie past silence (the 95% and the
+  line: Claude). The original wording failed on made-up clips that clearly carried sound. Reported
+  per layer; a failure is read by Daniel, nothing stops automatically.
+- **Blur rule (section 11).** "Every clip grayscale" cannot hold once "clear" has a bar, because
+  about 1 clip in 16 clears it by luck. Replaced as below.
+
+**Added, filling what the plan left open**
+- **Clear primary, whole clip (Daniel).** Greater than the neutral clips: a clip is clear if its gap
+  between top emotion and runner-up beats the biggest such gap among the 15 neutral clips.
+- **Wave (Daniel).** Compare moment to moment on the plain half-second windows, no overlap; look for
+  a build and a drop, like 1, 2, 6, 3, 0. Waves may overlap. A lone spike does not count. Exact form
+  (Claude): rise = score minus the emotion's usual level in that clip, minus what the five share at
+  that moment; the peak beats the top 5% of neutral moments on that arrow; the windows either side
+  are at least a quarter of the way up; a peak in the first or last window does not count.
+- **Blurred (Daniel, form: Claude).** A clip is blurred if its whole-clip reading is not clear and it
+  has a wave. Across clips: do emotion clips show waves clearly more often than neutral clips?
+  Rough, with 15 neutral clips. On made-up data 6 of 15 no-emotion clips showed a wave by luck, so
+  the wave count means nothing without that comparison.
+- **"After the climax" (section 10; Daniel, bar proposed by Claude).** The takeaway positions get the
+  same five-way test as their own set of readings, best layer against best layer, per model. A win
+  is at least 10 more of the 100 clips right.
+- **Two models (Daniel).** Each is read on its own, then compared. Only both clear and disagreeing is
+  a conflict; it stops nothing and feeds a hypothesis about which model suits the next step.
+- **Opposites (Daniel).** Kept as built. Removing the average of the five directions was rejected: it
+  forces the typical comparison to about -0.25, the trap section 11 names.
+
+**Corrected in the code:** a clip's timeline is now always measured on arrows built without it, and
+takeaway positions are no longer measured on arrows built from sound positions.
+
+**Timeline visual (section 12)** is a separate local page (`viewer/build_timeline.py`, written under
+`runs/`), not part of the hosted Scratch Paper Viewer, because it holds film-clip data.

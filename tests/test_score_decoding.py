@@ -5,6 +5,8 @@ silence, and, at layer lm_1 only, either a separate direction per emotion (the p
 signal) or one loudness direction whose sign follows energy (the loudness trap).
 """
 import json
+import sys
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -116,19 +118,17 @@ def test_label_shuffle_is_repeatable_with_a_seed():
 
 
 def test_sound_check_tells_registering_sound_from_silence_like_clips():
-    """The plan's rule passes only when the jump from silence to the clips is larger than the
-    clips' spread among themselves (flagged in DECISIONS)."""
+    """Silence must fall outside the spread of the clips, measured along the line to the clips."""
     names, mats, labels = make_layers("emotion")
     rng = np.random.default_rng(6)
     sil = labels == "silence"
     shift = np.zeros(mats[2].shape[1]); shift[0] = 10.0
     spread = rng.normal(scale=0.5, size=mats[2].shape)
-    registering = np.where(sil[:, None], 0.0, shift + spread)
-    assert sd.sound_check(registering, labels)["ratio"] > 1            # sound sits clearly away from silence
-    silent_like = np.where(sil[:, None], 0.0, spread)
-    assert sd.sound_check(silent_like, labels)["ratio"] < 1            # clips are just silence plus noise
-    # The same planted-emotion clips fail the rule when their spread exceeds the jump from silence.
-    assert sd.sound_check(mats[2], labels)["ratio"] < 1
+    assert sd.sound_check(np.where(sil[:, None], 0.0, shift + spread), labels)["outside_spread"]
+    silent_like = sd.sound_check(np.where(sil[:, None], 0.0, spread), labels)
+    assert not silent_like["outside_spread"] and silent_like["share_past_silence"] < 0.75
+    # Clips that vary a lot but clearly carry sound: the case the plan's wording failed on.
+    assert sd.sound_check(mats[2], labels)["outside_spread"]
 
 
 def test_opposites_and_reference_comparison():
@@ -171,6 +171,131 @@ def test_timeline_follows_a_signal_that_arrives_late_and_margin_has_no_verdict()
     assert m.shape == (8,) and (m >= 0).all()
 
 
+def test_timeline_of_a_clip_uses_arrows_built_without_it():
+    """With the clip inside its own arrow, pure noise looks like a signal."""
+    labels = np.array([e for e in EMO for _ in range(4)] + ["neutral"] * 15 + ["silence", "flat_tone"])
+    X = np.random.default_rng(12).normal(size=(len(labels), 300))
+    idx = np.flatnonzero(np.isin(labels, EMO))
+    right = lambda **kw: np.mean([EMO[sd.timeline(X[i:i + 1], X, labels, **(kw and {"clip": i}))[0].argmax()]
+                                  == labels[i] for i in idx])
+    assert right() > 0.9 and right(clip=True) < 0.5
+    i = idx[0]
+    keep = np.arange(len(labels)) != i
+    ref = sd.reference_mean(X[keep], labels[keep], "silence")
+    want = (X[i] - ref) @ sd.unit(sd.directions(X[keep], labels[keep], "silence")).T
+    np.testing.assert_allclose(sd.timeline(X[i:i + 1], X, labels, clip=i)[0], want)
+
+
+def series(sad, n=None):
+    """One clip's five emotion scores, flat except sadness."""
+    s = np.zeros((len(sad), 5))
+    s[:, EMO.index("sad")] = sad
+    return s
+
+
+BARS = np.full(5, 3.0)
+
+
+def test_daniels_wave_counts_and_the_shapes_he_ruled_out_do_not():
+    quiet = [0] * 8
+    waves = sd.find_waves(series(quiet + [1, 2, 6, 3, 0] + quiet), BARS)
+    assert [(w["emotion"], w["peak_window"]) for w in waves] == [("sad", 10)]
+    assert sd.find_waves(series(quiet + [0, 0, 6, 0, 0] + quiet), BARS) == []     # lone spike
+    assert sd.find_waves(series(quiet + [0, 6, 6, 0] + quiet), BARS) == []        # no build
+    assert sd.find_waves(series(quiet + [1, 2, 2, 2, 1] + quiet), BARS) == []     # below the bar
+    assert sd.find_waves(series(quiet + [1, 2, 4, 6]), BARS) == []                # cut off mid-rise
+    assert sd.find_waves(series([6, 3, 1] + quiet), BARS) == []                   # cut off at the start
+
+
+def test_overlapping_waves_both_count_but_all_five_together_do_not():
+    wave = np.array([0] * 8 + [1, 2, 6, 3, 0] + [0] * 8, float)
+    s = series(wave)
+    s[:, EMO.index("tender")] = np.roll(wave, 1)
+    assert {w["emotion"] for w in sd.find_waves(s, BARS)} == {"sad", "tender"}
+    together = np.repeat(wave[:, None], 5, axis=1)
+    assert sd.find_waves(together, BARS) == []
+
+
+def test_wave_bar_comes_from_the_neutral_clips():
+    rng = np.random.default_rng(13)
+    neutral = [rng.normal(size=(30, 5)) for _ in range(15)]
+    bars = sd.wave_bars(neutral)
+    assert bars.shape == (5,)
+    all_rises = np.vstack([sd.rises(s) for s in neutral])
+    np.testing.assert_allclose((all_rises > bars).mean(0), sd.WAVE_BAR_SHARE, atol=0.005)
+
+
+def make_moments(names, mats, labels, seed=14, n_win=30, wave_size=8.0):
+    """Windows per clip at lm_1: the clip's reading plus noise; each emotion clip gets one wave
+    along its own arrow."""
+    rng = np.random.default_rng(seed)
+    X = mats[2]
+    U = sd.unit(sd.directions(X, labels, "silence"))
+    W, wc = [], []
+    for i, lab in enumerate(labels):
+        rows = X[i] + rng.normal(scale=0.3, size=(n_win, X.shape[1]))
+        if lab in EMO:
+            rows[12:17] += wave_size * np.array([.3, .6, 1, .6, .3])[:, None] * U[EMO.index(lab)]
+        W.append(rows); wc += [i] * n_win
+    return np.vstack(W), np.array(wc), X
+
+
+def test_planted_waves_are_found_and_blur_is_counted():
+    names, mats, labels = make_layers("emotion", seed=15)
+    W, wc, X = make_moments(names, mats, labels)
+    rep, whole, waves = sd.wave_report(W, wc, X, labels)
+    assert rep["emotion_clips_with_a_wave"] >= 90 and rep["neutral_clips_with_a_wave"] <= 8   # waves by luck are common
+    assert rep["this_split_or_stronger_by_luck"] < 0.001
+    assert rep["waves_on_the_chosen_emotion"] / rep["waves_in_emotion_clips"] > 0.4   # luck is 20%
+    assert rep["blurred_clips"] == sum(bool(waves[i]) and not whole[i][2] for i in whole)
+
+
+def test_no_planted_waves_means_no_difference_from_neutral():
+    names, mats, labels = make_layers("emotion", seed=16)
+    W, wc, X = make_moments(names, mats, labels, wave_size=0.0)
+    rep, _, _ = sd.wave_report(W, wc, X, labels)
+    assert rep["this_split_or_stronger_by_luck"] > 0.05
+
+
+def test_neutral_bar_marks_strong_clips_clear_and_weak_clips_not():
+    names, mats, labels = make_layers("emotion", seed=17)
+    strong = sd.whole_clip_clarity(mats[2], labels)
+    weak = sd.whole_clip_clarity(mats[0], labels)                       # no emotion at this layer
+    share = lambda out: np.mean([c for _, _, c in out[1].values()])
+    assert share(strong) > 0.5 > 0.25 > share(weak)
+
+
+def test_climax_check_scores_takeaway_as_its_own_readings():
+    names, mats, labels = make_layers("emotion", seed=18)
+    offset = 50 * sd.unit(np.random.default_rng(19).normal(size=mats[2].shape[1]))
+    # Takeaway readings: every clip shares a word-position offset; the emotion is all there.
+    res = sd.climax_check(names[:2], mats[:2], ["lm_0"], [mats[2] + offset], labels)
+    assert res["takeaway_right"] >= 80 and res["takeaway_wins"]
+    assert res["right_only_on_takeaway"] - res["right_only_on_whole_clip"] == \
+        res["takeaway_right"] - res["whole_clip_right"]
+    even = sd.climax_check(names, mats, ["lm_0"], [mats[2] + offset], labels)
+    assert not even["takeaway_wins"] and even["win_at"] == 10
+
+
+def test_takeaway_matrices_average_each_clips_positions():
+    tail = np.arange(4 * 2 * 3, dtype=np.float16).reshape(4, 2, 3)
+    names, mats = sd.takeaway_matrices(tail, np.array([0, 0, 1, 1]), 2)
+    assert names == ["lm_0", "lm_1"] and mats[0].shape == (2, 3)
+    np.testing.assert_allclose(mats[1][1], tail[2:, 1].astype(float).mean(0))
+
+
+def test_compare_models_only_flags_both_clear_and_disagreeing():
+    a = {"model": "a", "clips": [{"clip_id": "1", "label": "sad", "pick": "sad", "clear": True},
+                                 {"clip_id": "2", "label": "sad", "pick": "sad", "clear": True},
+                                 {"clip_id": "3", "label": "sad", "pick": "fear", "clear": True}]}
+    b = {"model": "b", "clips": [{"clip_id": "1", "label": "sad", "pick": "sad", "clear": True},
+                                 {"clip_id": "2", "label": "sad", "pick": "fear", "clear": True},
+                                 {"clip_id": "3", "label": "sad", "pick": "sad", "clear": False}]}
+    out = sd.compare_models(a, b)
+    assert out["both_clear"] == 2 and out["both_clear_and_agree"] == 1
+    assert [c["clip_id"] for c in out["conflicts"]] == ["2"]
+
+
 def test_binomial_tail():
     assert sd.binom_tail(1, 1, 0.5) == pytest.approx(0.5)
     assert sd.binom_tail(0, 10, 0.2) == pytest.approx(1.0)
@@ -193,3 +318,40 @@ def test_main_writes_the_score_file_with_decisions(write_run, tmp_path, capsys):
     assert set(res["by_reference"]) == set(sd.REFERENCES)
     out = capsys.readouterr().out
     assert "Primary layer" in out and "p-value" not in out and "significant" not in out
+
+
+def test_main_reads_the_moments_file_when_it_is_there(write_run, tmp_path, capsys):
+    names, mats, labels = make_layers("emotion", n_per=8, seed=20)
+    clips = [{"label": str(lab), "source": "s", "recording": f"r{i}"} for i, lab in enumerate(labels)]
+    prefix = write_run(mats[0], np.stack(mats[1:], axis=1), clips, name="film")
+    W, wc, X = make_moments(names, mats, labels)
+    tail = np.stack(mats[1:], axis=1).astype(np.float16)
+    np.savez(tmp_path / "film.moments.npz", enc_windows=W.astype(np.float16),
+             lm_windows=np.repeat(W[:, None], 2, axis=1).astype(np.float16), window_clip=wc,
+             lm_tail=tail, tail_clip=np.arange(len(labels)))
+    sd.main([prefix, "--clips", "", "--perm", "0"])
+    res = json.loads((tmp_path / "film.score.json").read_text())
+    assert set(res["climax"]) >= {"takeaway_right", "takeaway_wins"} and "blur" in res
+    assert len(res["clips"]) == int(np.isin(labels, EMO).sum())
+    sd.main(["--compare", prefix, prefix])
+    assert '"conflicts": []' in capsys.readouterr().out
+
+
+def test_timeline_page_is_self_contained_and_marks_the_wave(tmp_path):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "viewer"))
+    import build_timeline as bt
+    names, mats, labels = make_layers("emotion", seed=21)
+    W, wc, X = make_moments(names, mats, labels)
+    row = int(np.flatnonzero(labels == "sad")[0])
+    audio = np.sin(np.linspace(0, 900, 16000))
+    d = bt.timeline_data(W, wc, X, labels, row, 0.48, audio)
+    assert len(d["rises"]) == 30 and len(d["rises"][0]) == 5 and len(d["envelope"]) == 600
+    assert max(d["envelope"]) == 1
+    assert "sad" in {w["emotion"] for w in d["peaks"]}
+    html = bt.page("clip_1", "m", "lm_1", d)
+    assert "__" not in html.replace("__proto__", "") and "http" not in html
+
+
+def test_timeline_page_is_never_tracked():
+    root = Path(__file__).resolve().parents[1]
+    assert "runs/" in (root / ".gitignore").read_text().split()
