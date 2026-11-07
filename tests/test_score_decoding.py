@@ -352,6 +352,12 @@ def test_timeline_page_is_self_contained_and_marks_the_wave(tmp_path):
     assert "sad" in {w["emotion"] for w in d["peaks"]}
     html = bt.page("clip_1", "m", "lm_1", d)
     assert "__" not in html.replace("__proto__", "") and "http" not in html
+    assert 'src=""' in html and '"hasAudio": false' in html  # no audio given: player off, nothing embedded
+    wav = tmp_path / "clip.wav"
+    import soundfile as sf
+    sf.write(wav, audio, 16000)
+    played = bt.page("clip_1", "m", "lm_1", d, bt.audio_uri(str(wav)))
+    assert 'src="data:audio/wav;base64,' in played and '"hasAudio": true' in played and "__AUDIO__" not in played
 
 
 def test_timeline_page_is_never_tracked():

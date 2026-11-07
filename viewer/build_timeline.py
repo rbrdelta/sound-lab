@@ -7,10 +7,12 @@ holds the film clip's shape, so it is written under runs/ and never committed or
 Usage:
   python viewer/build_timeline.py runs/real-music/qwen_film_decoding set1_074 --layer lm_16
 Writes runs/real-music/timeline-qwen_film_decoding-set1_074-lm_16.html
+The clip's audio is embedded so the page plays it with a moving playhead (local only: film audio).
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import json
 import sys
@@ -44,6 +46,8 @@ svg path { fill:var(--muted) }
 button { font:14px system-ui,sans-serif; padding:4px 10px; border:1px solid var(--rule); border-radius:6px;
   background:var(--panel); color:var(--ink); cursor:pointer }
 button[aria-pressed=true] { border-color:var(--ink); font-weight:600 }
+.cell.now { outline:2px solid var(--ink); outline-offset:-1px }
+.cell { cursor:pointer }
 #hint { font:13px ui-monospace,monospace; color:var(--muted); min-height:1.5em }
 </style>
 <div class="wrap">
@@ -53,11 +57,13 @@ button[aria-pressed=true] { border-color:var(--ink); font-weight:600 }
   ones in the secondary emotions. "Net of the shared rise" takes out what all five share at that
   moment, which is what the wave rule uses. The "all five" row shows that shared rise on its own. A
   ring marks the peak of a wave. Inferred from the model's readings, not proof of anything felt.</p>
-  <div><button id="raw" aria-pressed="true">As read</button>
+  <div><button id="play">Play</button>
+  <button id="raw" aria-pressed="true">As read</button>
   <button id="net" aria-pressed="false">Net of the shared rise</button></div>
   <div class="board" id="board"></div>
-  <div id="hint">Point at a square for its numbers.</div>
+  <div id="hint">Point at a square for its numbers. Click one to play from there.</div>
 </div>
+<audio id="au" preload="auto" src="__AUDIO__"></audio>
 <script>
 const D = __DATA__;
 const board = document.getElementById('board'), hint = document.getElementById('hint');
@@ -73,6 +79,7 @@ D.emotions.forEach((e, k) => {
     c.className = 'cell' + (D.peaks.some(p => p.emotion === e && p.peak_window === t) ? ' peak' : '');
     c.onmouseenter = () => hint.textContent = `${e} at ${(t * D.window).toFixed(1)}s: rise as read ` +
       `${D.raw[t][k].toFixed(2)}, net ${r[k].toFixed(2)}, score ${D.scores[t][k].toFixed(2)}, wave bar ${D.bars[k].toFixed(2)}`;
+    c.onclick = () => seek(t);
     row.append(c); cells.push({ c, t, k });
   });
 });
@@ -80,6 +87,7 @@ const sharedRow = addRow('all five', 'shared');
 const sharedCells = D.shared.map((v, t) => {
   const c = document.createElement('div');
   c.className = 'cell';
+  c.onclick = () => seek(t);
   c.onmouseenter = () => hint.textContent = `all five at ${(t * D.window).toFixed(1)}s: shared rise ${v.toFixed(2)}`;
   sharedRow.append(c);
   return c;
@@ -98,8 +106,28 @@ show('raw');
 const n = D.envelope.length, up = D.envelope.map((v, i) => `${i},${50 - 48 * v}`);
 const down = D.envelope.map((v, i) => `${i},${50 + 48 * v}`).reverse();
 board.insertAdjacentHTML('beforeend', `<div class="name">sound</div>
-  <svg viewBox="0 0 ${n} 100" preserveAspectRatio="none"><path d="M${up.concat(down).join('L')}Z"/></svg>
+  <svg viewBox="0 0 ${n} 100" preserveAspectRatio="none"><path d="M${up.concat(down).join('L')}Z"/>
+  <rect id="head" x="0" y="0" width="${(n / 300).toFixed(2)}" height="100" style="fill:var(--ink)"/></svg>
   <div></div><div class="axis"><span>0s</span><span>${(D.rises.length * D.window).toFixed(1)}s</span></div>`);
+// Playback: the playhead moves over the sound outline and the current half-second column is outlined.
+const au = document.getElementById('au'), play = document.getElementById('play'),
+  head = document.getElementById('head');
+let cur = -1;
+function seek(t) { if (!au.src) return; au.currentTime = t * D.window; au.play(); }
+play.onclick = () => au.paused ? au.play() : au.pause();
+au.onplay = () => { play.textContent = 'Pause'; requestAnimationFrame(tick); };
+au.onpause = au.onended = () => { play.textContent = 'Play'; };
+function tick() {
+  const t = Math.min(Math.floor(au.currentTime / D.window), D.rises.length - 1);
+  if (t !== cur) {
+    cells.forEach(o => o.c.classList.toggle('now', o.t === t));
+    sharedCells.forEach((c, i) => c.classList.toggle('now', i === t));
+    cur = t;
+  }
+  if (au.duration) head.setAttribute('x', (n * au.currentTime / au.duration).toFixed(1));
+  if (!au.paused) requestAnimationFrame(tick);
+}
+if (!D.hasAudio) play.disabled = true;
 </script>
 """
 
@@ -126,8 +154,15 @@ def timeline_data(W, wc, X, labels, row, window_seconds, audio) -> dict:
             "peaks": sd.find_waves(s, bars), "window": window_seconds, "envelope": envelope(audio)}
 
 
-def page(clip_id: str, model: str, layer: str, data: dict) -> str:
-    return (PAGE.replace("__CLIP__", clip_id).replace("__MODEL__", model).replace("__LAYER__", layer)
+def audio_uri(path: str) -> str:
+    """The clip file itself as a data: URI, so the page plays it with no server and no outside link."""
+    mime = {".mp3": "audio/mpeg", ".wav": "audio/wav", ".flac": "audio/flac"}.get(Path(path).suffix.lower(), "audio/mpeg")
+    return f"data:{mime};base64," + base64.b64encode(Path(path).read_bytes()).decode()
+
+
+def page(clip_id: str, model: str, layer: str, data: dict, audio: str = "") -> str:
+    data = {**data, "hasAudio": bool(audio)}
+    return (PAGE.replace("__AUDIO__", audio).replace("__CLIP__", clip_id).replace("__MODEL__", model).replace("__LAYER__", layer)
             .replace("__WINDOW__", f"{data['window']:.2f}").replace("__DATA__", json.dumps(data)))
 
 
@@ -154,7 +189,7 @@ def main(argv=None):
     window = man["moments_window_tokens"] / man["audio_tokens_per_second"]
     data = timeline_data(W, wc, mats[L], labels, row, window, sf.read(path)[0])
     out = prefix.with_name(f"timeline-{prefix.name}-{args.clip_id}-{args.layer}.html")
-    out.write_text(page(args.clip_id, man.get("model", ""), args.layer, data))
+    out.write_text(page(args.clip_id, man.get("model", ""), args.layer, data, audio_uri(path)))
     print(f"wrote {out}")
 
 
