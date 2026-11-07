@@ -271,3 +271,27 @@ takeaway positions are no longer measured on arrows built from sound positions.
 
 **Timeline visual (section 12)** is a separate local page (`viewer/build_timeline.py`, written under
 `runs/`), not part of the hosted Scratch Paper Viewer, because it holds film-clip data.
+
+## Before scoring (2026-11-07): the opening spike, left in
+
+**What was seen before any scoring.** At the keyboard walk-through Daniel viewed one clip's
+timeline (`set1_005`, Qwen, layer 16, chosen by Claude as the middle layer, not by the plan) and
+the five emotion scores at one of its moments. No other emotion score was computed. Claude then
+counted very large readings ("giant moments": a half-second reading more than 3x the typical
+length at that layer; Claude's cut-off) across all clips and layers, using sizes and timing only:
+- Qwen layers 8-22: about 13% of moments; 97% of them in the first 2.9 s of a clip; the silence
+  clip and the flat tone have them too; always positions #4000 and #3030. The rest fall at exactly
+  4.3 s or 5.3 s (19 moments in 15 clips).
+- Qwen layers 2-7: a smaller spike at other positions (#1718, #3127, #1496), in the opening, absent
+  from silence. Qwen layers 0-1, 29-31 and the ears: none.
+- Audio Flamingo: in about a third of clips, almost all at exactly 5.3 s; not in the opening; absent
+  from silence.
+
+**Decision (Daniel):** "score everything. leave it in. I am not ready to rule it out. it's the
+first signal we received and we don't know enough to say it's not important." Scoring runs
+unchanged. Results are read knowing that Qwen's middle layers carry this spike.
+
+**Open readings (Daniel, not tested):** the spike as a trigger "to capture something in that
+moment", possibly set off by a lead-up; "a query vector that says if x is sensed, then y happens".
+Candidate checks named, not run: the audio before 4.3 s in clips where it fires vs not; the 16
+one-minute excerpts, to see whether it fires again later.
